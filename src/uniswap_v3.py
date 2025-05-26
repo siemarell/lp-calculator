@@ -19,6 +19,9 @@ class UniswapV3Position:
         self.deposited_amount1 = None  # Initial amount of token1 provided. Used to calculate impermanent loss
         self.amount1 = None
         self.L = None  # Liquidity to be calculated
+        self.token0_price_in_token1 = None
+        self.expected_daily_profit_per_1000_token1 = None
+        self.initial_position_value_in_token1 = None
 
     def provide_liquidity(
         self,
@@ -28,6 +31,8 @@ class UniswapV3Position:
             float
         ],  # Initial ratio of tokens provided. Used to calculate impermanent loss. If None, assume distribution that was required by the pool
     ):
+        self.token0_price_in_token1 = p_current
+        self.initial_position_value_in_token1 = position_value_in_token1
         """Provide liquidity and compute liquidity."""
         if t0_part is not None:
             assert 0 <= t0_part <= 1, "t0_t1_distribution_ratio must be between 0 and 1"
@@ -74,9 +79,27 @@ class UniswapV3Position:
                 self.deposited_amount1 = amount1
             return self
 
+    def set_expected_daily_profit_per_1000_token1(
+        self,
+        daily_profit_per_1000_token1: float | None,
+    ):
+        self.expected_daily_profit_per_1000_token1 = daily_profit_per_1000_token1
+        return self
+
+    def calculate_fees(self, days: int | None):
+        if self.expected_daily_profit_per_1000_token1 and days:
+            collected_fees = (
+                self.expected_daily_profit_per_1000_token1
+                * days
+                * self.initial_position_value_in_token1
+                / 1000
+            )
+            return collected_fees
+        return None
+
     @property
     def label(self):
-        return f"Uniswap V3 {self.p_l} {self.p_u}"
+        return f"UniV3 IL {self.p_l} {self.p_u}"
 
     def token_amounts(self, p: float):
         """Given price P and liquidity L, return amounts of token0 and token1."""

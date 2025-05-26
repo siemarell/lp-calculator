@@ -5,13 +5,13 @@ import numpy as np
 
 
 class OptionType(Enum):
-    CALL = "call"
-    PUT = "put"
+    CALL = "Call"
+    PUT = "Put"
 
 
 class PositionType(Enum):
-    BUY = "buy"
-    SELL = "sell"
+    BUY = "Buy"
+    SELL = "Sell"
 
 
 @dataclass
@@ -25,7 +25,7 @@ class OptionPosition:
 
     @property
     def label(self):
-        return f"{self.type.value} {self.position.value} {self.quantity} @ {self.strike_price}"
+        return f"{self.type.value} {self.position.value} {self.quantity} @ {self.strike_price}. ${self.total_premium}"
 
     @property
     def total_premium(self):
