@@ -13,7 +13,27 @@ function App() {
 
         <div className="card mb-8">
           <h2 className="mb-4 text-xl font-semibold">Counter Example</h2>
-          <div className="mb-4 flex flex-col justify-center gap-4 sm:flex-row"></div>
+          <div className="mb-4 flex flex-col justify-center gap-4 sm:flex-row">
+            <button 
+              className="btn-primary" 
+              onClick={() => setCount(count + 1)}
+            >
+              Increment
+            </button>
+            <button 
+              className="btn-secondary" 
+              onClick={() => setCount(count - 1)}
+            >
+              Decrement
+            </button>
+            <button 
+              className="btn-outline" 
+              onClick={() => setCount(0)}
+            >
+              Reset
+            </button>
+          </div>
+          <p className="text-xl font-bold">Count: {count}</p>
           <p className="mt-4 text-gray-600 dark:text-gray-300">
             Edit{" "}
             <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-700">

@@ -1,12 +1,12 @@
 // Equivalent to Python's enum
 export enum OptionType {
   CALL = "Call",
-  PUT = "Put"
+  PUT = "Put",
 }
 
 export enum PositionType {
   BUY = "Buy",
-  SELL = "Sell"
+  SELL = "Sell",
 }
 
 // Equivalent to Python's dataclass
@@ -22,7 +22,7 @@ export class OptionPosition {
     position: PositionType,
     quantity: number,
     strike_price: number,
-    premium_per_item: number
+    premium_per_item: number,
   ) {
     this.type = type;
     this.position = position;
@@ -44,7 +44,7 @@ export class OptionPosition {
   // Equivalent to Python's method with type annotation
   payoff(price: number | number[]): number | number[] {
     if (Array.isArray(price)) {
-      return price.map(p => this.payoff(p) as number);
+      return price.map((p) => this.payoff(p) as number);
     }
 
     let payoff: number;
