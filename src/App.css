@@ -1,38 +1,14 @@
+/* App-specific styles using Tailwind classes */
 .App {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  @apply max-w-6xl mx-auto p-8 text-center;
 }
 
 .App-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  @apply flex flex-col items-center;
 }
 
 .card {
-  padding: 2em;
+  @apply p-6 rounded-lg shadow-md bg-white dark:bg-gray-800;
 }
 
-button {
-  font-size: 1em;
-  padding: 0.6em 1.2em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.25s;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+/* Use the btn-primary class from index.css for buttons */

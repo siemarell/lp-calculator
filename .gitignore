@@ -21,6 +21,11 @@ lerna-debug.log*
 dist-ssr
 *.local
 
+# ESLint and Prettier cache
+.eslintcache
+.prettierrc.cache
+.eslint-results.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

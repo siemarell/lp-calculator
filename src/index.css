@@ -1,12 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
 :root {
-  font-family: Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
   color-scheme: light dark;
-  color: #213547;
-  background-color: #ffffff;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -14,29 +12,18 @@
   -webkit-text-size-adjust: 100%;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 2.2em;
-  line-height: 1.1;
-  color: #333;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+@layer base {
+  body {
+    @apply min-h-screen font-sans text-gray-800 bg-white dark:bg-gray-900 dark:text-white;
   }
+
   h1 {
-    color: #ffffff;
+    @apply text-3xl font-bold leading-tight text-gray-900 dark:text-white;
   }
-  button {
-    background-color: #4CAF50;
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 font-semibold text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75;
   }
 }
