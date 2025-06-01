@@ -13,6 +13,7 @@ import {
   LineElement,
 } from "chart.js";
 import { Strategy } from "../strategy/strategy";
+import { observer } from "mobx-react-lite";
 Chart.register(
   CategoryScale,
   LinearScale,
@@ -29,14 +30,15 @@ interface StrategyChartProps {
   strategy: Strategy;
 }
 
-export const StrategyChart = (props: StrategyChartProps) => {
+export const StrategyChart = observer((props: StrategyChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
+  const series = props.strategy.series;
+  const name = props.strategy.name;
+  const prices = props.strategy.prices;
 
   useEffect(() => {
     if (!chartRef.current) return;
-
-    const series = props.strategy.buildSeries();
 
     if (chartInstance.current) {
       chartInstance.current.destroy();
@@ -47,7 +49,7 @@ export const StrategyChart = (props: StrategyChartProps) => {
     const config: ChartConfiguration<keyof ChartTypeRegistry> = {
       type: "line",
       data: {
-        labels: props.strategy.prices,
+        labels: prices,
         datasets: series.map((s) => ({
           label: s.name,
           data: s.y,
@@ -65,7 +67,7 @@ export const StrategyChart = (props: StrategyChartProps) => {
           },
           title: {
             display: true,
-            text: props.strategy.name,
+            text: name,
           },
         },
         scales: {
@@ -94,11 +96,11 @@ export const StrategyChart = (props: StrategyChartProps) => {
         chartInstance.current.destroy();
       }
     };
-  }, [props.strategy]);
+  }, [name, prices, series]);
 
   return (
-    <div className={cn(props.className)}>
+    <div className={cn("", props.className)}>
       <canvas ref={chartRef}></canvas>
     </div>
   );
-};
+});

@@ -1,30 +1,36 @@
 // Equivalent to Python's enum
-export enum OptionType {
-  CALL = "Call",
-  PUT = "Put",
-}
+import { observable } from "mobx";
 
-export enum PositionType {
-  BUY = "Buy",
-  SELL = "Sell",
-}
+export const OptionType = {
+  CALL: "Call",
+  PUT: "Put",
+} as const;
+export type OptionType = (typeof OptionType)[keyof typeof OptionType];
+export const PositionType = {
+  BUY: "Buy",
+  SELL: "Sell",
+} as const;
+export type PositionType = (typeof PositionType)[keyof typeof PositionType];
+let id = 0;
 
-// Equivalent to Python's dataclass
 export class OptionPosition {
-  type: OptionType;
-  position: PositionType;
-  quantity: number;
-  strike_price: number;
-  premium_per_item: number;
+  readonly id: string;
+  readonly type = "option" as const;
+  @observable accessor optionType: OptionType;
+  @observable accessor position: PositionType;
+  @observable accessor quantity: number;
+  @observable accessor strike_price: number;
+  @observable accessor premium_per_item: number;
 
   constructor(
-    type: OptionType,
+    optionType: OptionType,
     position: PositionType,
     quantity: number,
     strike_price: number,
     premium_per_item: number,
   ) {
-    this.type = type;
+    this.id = `option-${id++}`;
+    this.optionType = optionType;
     this.position = position;
     this.quantity = quantity;
     this.strike_price = strike_price;
@@ -33,7 +39,7 @@ export class OptionPosition {
 
   // Equivalent to Python's property
   get label(): string {
-    return `${this.type} ${this.position} ${this.quantity} @ ${this.strike_price}. $${this.total_premium}`;
+    return `${this.optionType} ${this.position} ${this.quantity} @ ${this.strike_price}. $${this.total_premium}`;
   }
 
   // Equivalent to Python's property
@@ -48,9 +54,9 @@ export class OptionPosition {
     }
 
     let payoff: number;
-    if (this.type === OptionType.CALL) {
+    if (this.optionType === OptionType.CALL) {
       payoff = Math.max(price - this.strike_price, 0) * this.quantity;
-    } else if (this.type === OptionType.PUT) {
+    } else if (this.optionType === OptionType.PUT) {
       payoff = Math.max(this.strike_price - price, 0) * this.quantity;
     } else {
       throw new Error("Invalid option type");

@@ -1,5 +1,7 @@
-
+let id = 0;
 export class UniswapV3Position {
+  readonly id: string;
+  readonly type = "uniswap_v3" as const;
   p_l: number;
   p_u: number;
   sqrt_pl: number;
@@ -20,6 +22,7 @@ export class UniswapV3Position {
     if (p_l >= p_u) {
       throw new Error("Pl must be less than Pu");
     }
+    this.id = `uniswap_v3_${id++}`;
     this.p_l = p_l;
     this.p_u = p_u;
     this.sqrt_pl = Math.sqrt(p_l);
@@ -29,7 +32,7 @@ export class UniswapV3Position {
   provide_liquidity(
     p_current: number,
     position_value_in_token1: number,
-    t0_part?: number
+    t0_part?: number,
   ): UniswapV3Position {
     /**
      * Provide liquidity and compute liquidity.
@@ -44,7 +47,7 @@ export class UniswapV3Position {
       if (t0_part < 0 || t0_part > 1) {
         throw new Error("t0_t1_distribution_ratio must be between 0 and 1");
       }
-      this.deposited_amount0 = position_value_in_token1 * t0_part / p_current;
+      this.deposited_amount0 = (position_value_in_token1 * t0_part) / p_current;
       this.deposited_amount1 = position_value_in_token1 * (1 - t0_part);
     }
 
@@ -59,8 +62,11 @@ export class UniswapV3Position {
       }
       return this._provide_token1_only(position_value_in_token1);
     } else {
-      const _get_amounts_by_portion = (token0_fraction: number): [number, number] => {
-        const _amount0 = position_value_in_token1 * token0_fraction / p_current;
+      const _get_amounts_by_portion = (
+        token0_fraction: number,
+      ): [number, number] => {
+        const _amount0 =
+          (position_value_in_token1 * token0_fraction) / p_current;
         const _amount1 = position_value_in_token1 * (1 - token0_fraction);
         return [_amount0, _amount1];
       };
@@ -68,22 +74,14 @@ export class UniswapV3Position {
       let token0_portion = 0.5;
       let step = 0.5;
       let [amount0, amount1] = _get_amounts_by_portion(token0_portion);
-      let [_, l0, l1] = this._provide_both(
-        p_current,
-        amount0,
-        amount1
-      );
+      let [_, l0, l1] = this._provide_both(p_current, amount0, amount1);
 
       while (Math.abs(l1 - l0) > 0.01) {
         step = step / 2;
         const diff = l1 - l0 > 0 ? step : -step;
         token0_portion += diff;
         [amount0, amount1] = _get_amounts_by_portion(token0_portion);
-        [_, l0, l1] = this._provide_both(
-          p_current,
-          amount0,
-          amount1
-        );
+        [_, l0, l1] = this._provide_both(p_current, amount0, amount1);
       }
 
       if (t0_part === undefined) {
@@ -95,18 +93,22 @@ export class UniswapV3Position {
   }
 
   set_expected_daily_profit_per_1000_token1(
-    daily_profit_per_1000_token1: number | null
+    daily_profit_per_1000_token1: number | null,
   ): UniswapV3Position {
     this.expected_daily_profit_per_1000_token1 = daily_profit_per_1000_token1;
     return this;
   }
 
   calculate_fees(days: number | null): number | null {
-    if (this.expected_daily_profit_per_1000_token1 && days && this.initial_position_value_in_token1) {
-      const collected_fees = 
-        this.expected_daily_profit_per_1000_token1 * 
-        days * 
-        this.initial_position_value_in_token1 / 
+    if (
+      this.expected_daily_profit_per_1000_token1 &&
+      days &&
+      this.initial_position_value_in_token1
+    ) {
+      const collected_fees =
+        (this.expected_daily_profit_per_1000_token1 *
+          days *
+          this.initial_position_value_in_token1) /
         1000;
       return collected_fees;
     }
@@ -131,7 +133,9 @@ export class UniswapV3Position {
 
     if (p <= this.p_l) {
       // Entirely in token0
-      amount0 = this.L * (this.sqrt_pu - this.sqrt_pl) / (this.sqrt_pl * this.sqrt_pu);
+      amount0 =
+        (this.L * (this.sqrt_pu - this.sqrt_pl)) /
+        (this.sqrt_pl * this.sqrt_pu);
       amount1 = 0;
     } else if (p >= this.p_u) {
       // Entirely in token1
@@ -139,7 +143,7 @@ export class UniswapV3Position {
       amount1 = this.L * (this.sqrt_pu - this.sqrt_pl);
     } else {
       // Mixed position
-      amount0 = this.L * (this.sqrt_pu - sqrt_p) / (sqrt_p * this.sqrt_pu);
+      amount0 = (this.L * (this.sqrt_pu - sqrt_p)) / (sqrt_p * this.sqrt_pu);
       amount1 = this.L * (sqrt_p - this.sqrt_pl);
     }
     return [amount0, amount1];
@@ -156,18 +160,19 @@ export class UniswapV3Position {
       if (this.L === null) {
         throw new Error("Liquidity not set. Call a provide_* method first.");
       }
-      
+
       if (this.deposited_amount0 === null || this.deposited_amount1 === null) {
         throw new Error("Deposited amounts not set.");
       }
 
       const [current_amount0, current_amount1] = this.token_amounts(item);
-      const current_position_value_in_token1 = current_amount0 * item + current_amount1;
-      const deposited_position_amount_in_token1 = 
+      const current_position_value_in_token1 =
+        current_amount0 * item + current_amount1;
+      const deposited_position_amount_in_token1 =
         this.deposited_amount0 * item + this.deposited_amount1;
-      
+
       result.push(
-        current_position_value_in_token1 - deposited_position_amount_in_token1
+        current_position_value_in_token1 - deposited_position_amount_in_token1,
       );
     }
 
@@ -175,15 +180,15 @@ export class UniswapV3Position {
   }
 
   private _provide_both(
-    p_current: number, 
-    amount0: number, 
-    amount1: number
+    p_current: number,
+    amount0: number,
+    amount1: number,
   ): [number, number, number] {
     /**
      * Provide both token0 and token1 and compute liquidity.
      */
     const sqrt_p = Math.sqrt(p_current);
-    const L0 = amount0 * sqrt_p * this.sqrt_pu / (this.sqrt_pu - sqrt_p);
+    const L0 = (amount0 * sqrt_p * this.sqrt_pu) / (this.sqrt_pu - sqrt_p);
     const L1 = amount1 / (sqrt_p - this.sqrt_pl);
     this.L = Math.min(L0, L1);
     return [this.L, L0, L1];
@@ -193,7 +198,8 @@ export class UniswapV3Position {
     /**
      * Provide only token0, compute liquidity.
      */
-    this.L = amount0 * this.sqrt_pl * this.sqrt_pu / (this.sqrt_pu - this.sqrt_pl);
+    this.L =
+      (amount0 * this.sqrt_pl * this.sqrt_pu) / (this.sqrt_pu - this.sqrt_pl);
     return this;
   }
 

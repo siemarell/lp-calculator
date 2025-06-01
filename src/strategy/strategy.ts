@@ -1,6 +1,7 @@
 import { OptionPosition, OptionType, PositionType } from "./options";
 import { UniswapV3Position } from "./uniswap_v3";
 import { linSpace } from "../utils/linespace";
+import { computed, makeObservable, observable } from "mobx";
 
 interface Series {
   x: number[];
@@ -10,27 +11,33 @@ interface Series {
   fillcolor?: string;
   opacity?: number;
 }
-
-export class Strategy {
+interface StrategyDTO {
   name: string;
   positions: Array<UniswapV3Position | OptionPosition>;
-  prices: number[] = [];
-  constructor(
-    name: string,
-    positions: Array<UniswapV3Position | OptionPosition>,
-    minPrice: number,
-    maxPrice: number,
-  ) {
+  minPrice: number;
+  maxPrice: number;
+  daysInPosition: number;
+}
+export class Strategy {
+  @observable accessor name: string;
+  @observable accessor positions: Array<UniswapV3Position | OptionPosition>;
+  @observable accessor prices: number[] = [];
+  @observable accessor daysInPosition: number;
+  constructor({
+    name,
+    positions,
+    minPrice,
+    maxPrice,
+    daysInPosition,
+  }: StrategyDTO) {
     this.name = name;
     this.positions = positions;
     this.prices = linSpace(minPrice, maxPrice, 100);
+    this.daysInPosition = daysInPosition;
   }
-
-  buildSeries(days: number | null = null): Series[] {
+  @computed
+  get series(): Series[] {
     const prices = this.prices;
-    if (days !== null && days <= 0) {
-      throw new Error("days must be positive");
-    }
 
     // Initialize total payoff array with zeros
     const total_payoff = new Array(prices.length).fill(0);
@@ -78,7 +85,7 @@ export class Strategy {
         });
 
         // Calculate and add collected fees
-        const collected_fees = position.calculate_fees(days);
+        const collected_fees = position.calculate_fees(this.daysInPosition);
         if (collected_fees) {
           series.push({
             x: [prices[0], prices[prices.length - 1]],
@@ -135,14 +142,15 @@ export class Strategy {
   }
 }
 
-export const usdc_eth_unichain_my_may24_strategy = new Strategy(
-  "My ETH-USDC $1600, 70%/30%, 30d Call Hedge",
-  [
+export const usdc_eth_unichain_my_may24_strategy = new Strategy({
+  name: "My ETH-USDC $1600, 70%/30%, 30d Call Hedge",
+  positions: [
     new OptionPosition(OptionType.CALL, PositionType.BUY, 0.5, 3200, 55.9),
     new UniswapV3Position(2360, 3600)
       .provide_liquidity(2520, 1600, 0.78)
       .set_expected_daily_profit_per_1000_token1(1.0),
   ],
-  1500,
-  3600,
-);
+  minPrice: 1500,
+  maxPrice: 3600,
+  daysInPosition: 30,
+});

@@ -5,14 +5,13 @@
     "paths": {
     },
     "types": [
-      "vite/client",
+      "vite/client"
     ],
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "experimentalDecorators": true,
     "allowJs": true,
     "skipLibCheck": true,
     "useDefineForClassFields": true,
@@ -21,7 +20,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
