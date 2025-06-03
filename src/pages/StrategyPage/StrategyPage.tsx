@@ -1,18 +1,19 @@
 import cn from "classnames";
-import { StrategyChart } from "../components/StrategyChart";
+import { StrategyChart } from "src/components/StrategyChart";
 import {
   Strategy,
   usdc_eth_unichain_my_may24_strategy,
-} from "../strategy/strategy";
-import { PageRoot } from "../components/PageRoot";
+} from "src/strategy/strategy";
+import { PageRoot } from "src/components/PageRoot";
 import { observer } from "mobx-react-lite";
-import { assertNever } from "../utils/assertNever";
-import { OptionPosition, OptionType, PositionType } from "../strategy/options";
-import { Block } from "../components/Block";
-import { H4 } from "../components/H4";
-import { H3 } from "../components/H3";
-import { H1 } from "../components/H1";
-import { Separator } from "../components/Separator";
+import { assertNever } from "src/utils/assertNever";
+import { OptionPosition, OptionType, PositionType } from "src/strategy/options";
+import { Block } from "src/components/Block";
+import { H4 } from "src/components/H4";
+import { H3 } from "src/components/H3";
+import { H1 } from "src/components/H1";
+import { Separator } from "src/components/Separator";
+import { UniswapV3Position } from "src/strategy/uniswap_v3";
 
 interface StrategyPageProps {
   className?: string;
@@ -36,7 +37,7 @@ const StrategyControls = observer(
         {props.strategy.positions.map((p) => {
           switch (p.type) {
             case "option":
-              return <OptionControl key={p.id} option={p} />;
+              return <OptionPositionControl key={p.id} option={p} />;
             case "uniswap_v3":
               return null;
             default:
@@ -48,7 +49,7 @@ const StrategyControls = observer(
   },
 );
 
-const OptionControl = observer(
+const OptionPositionControl = observer(
   (props: { option: OptionPosition; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
@@ -134,5 +135,11 @@ const OptionControl = observer(
         </div>
       </Block>
     );
+  },
+);
+
+const UniswapV3PositionControl = observer(
+  (props: { position: UniswapV3Position; className?: string }) => {
+    return <Block className={cn(props.className)}></Block>;
   },
 );

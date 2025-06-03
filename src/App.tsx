@@ -1,5 +1,4 @@
-import { PageRoot } from "./components/PageRoot";
-import { StrategyPage } from "./pages/StrategyPage";
+import { StrategyPage } from "src/pages/StrategyPage/StrategyPage";
 
 function App() {
   return (

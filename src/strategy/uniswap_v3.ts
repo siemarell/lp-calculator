@@ -1,20 +1,37 @@
+import { computed, observable } from "mobx";
+type CreateUniswapV3Position = {
+  p_l: number;
+  p_u: number;
+  initialPriceInToken1: number;
+  initialPositionValueInToken1: number;
+  t0Part: number;
+};
+
 let id = 0;
 export class UniswapV3Position {
   readonly id: string;
   readonly type = "uniswap_v3" as const;
-  p_l: number;
-  p_u: number;
-  sqrt_pl: number;
-  sqrt_pu: number;
+  @observable accessor p_l: number;
+  @observable accessor p_u: number;
+  @observable accessor initialPriceInToken1: number;
+  @observable accessor initialPositionValueInToken1: number;
+  @observable accessor t0Part: number;
+
   deposited_amount0: number | null = null;
   deposited_amount1: number | null = null;
+
   amount1: number | null = null;
   L: number | null = null;
   token0_price_in_token1: number | null = null;
   expected_daily_profit_per_1000_token1: number | null = null;
-  initial_position_value_in_token1: number | null = null;
 
-  constructor(p_l: number, p_u: number) {
+  constructor({
+    p_u,
+    p_l,
+    initialPositionValueInToken1,
+    t0Part,
+    initialPriceInToken1,
+  }: CreateUniswapV3Position) {
     /**
      * Pl: lower price (token0 per token1)
      * Pu: upper price (token0 per token1)
@@ -25,8 +42,16 @@ export class UniswapV3Position {
     this.id = `uniswap_v3_${id++}`;
     this.p_l = p_l;
     this.p_u = p_u;
-    this.sqrt_pl = Math.sqrt(p_l);
-    this.sqrt_pu = Math.sqrt(p_u);
+    this.initialPositionValueInToken1 = initialPositionValueInToken1;
+    this.t0Part = t0Part;
+    this.initialPriceInToken1 = initialPriceInToken1;
+  }
+
+  @computed private get sqrt_pl() {
+    return Math.sqrt(this.p_l);
+  }
+  @computed private get sqrt_pu() {
+    return Math.sqrt(this.p_u);
   }
 
   provide_liquidity(
@@ -41,7 +66,7 @@ export class UniswapV3Position {
      * @param t0_part Initial ratio of tokens provided. Used to calculate impermanent loss. If undefined, assume distribution that was required by the pool
      */
     this.token0_price_in_token1 = p_current;
-    this.initial_position_value_in_token1 = position_value_in_token1;
+    this.initialPositionValueInToken1 = position_value_in_token1;
 
     if (t0_part !== undefined) {
       if (t0_part < 0 || t0_part > 1) {
@@ -103,12 +128,12 @@ export class UniswapV3Position {
     if (
       this.expected_daily_profit_per_1000_token1 &&
       days &&
-      this.initial_position_value_in_token1
+      this.initialPositionValueInToken1
     ) {
       const collected_fees =
         (this.expected_daily_profit_per_1000_token1 *
           days *
-          this.initial_position_value_in_token1) /
+          this.initialPositionValueInToken1) /
         1000;
       return collected_fees;
     }

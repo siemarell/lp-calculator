@@ -50,13 +50,16 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
       type: "line",
       data: {
         labels: prices,
-        datasets: series.map((s) => ({
+        datasets: series.map((s, index) => ({
           label: s.name,
           data: s.y,
-          borderColor: s.line?.color || "#000",
-          borderDash: s.line?.dash === "dash" ? [5, 5] : [],
-          borderWidth: s.line?.width || 1,
           fill: false,
+
+          borderColor:
+            index === series.length - 1
+              ? "black"
+              : chartColors[index % chartColors.length],
+          pointRadius: 1,
         })),
       },
       options: {
@@ -104,3 +107,16 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
     </div>
   );
 });
+
+const chartColors = [
+  "#3B82F6", // Bright Blue
+  "#EF4444", // Vibrant Red
+  "#10B981", // Emerald Green
+  "#F59E0B", // Amber Orange
+  "#8B5CF6", // Purple
+  "#06B6D4", // Cyan
+  "#F97316", // Orange
+  "#84CC16", // Lime Green
+  "#EC4899", // Pink
+  "#6B7280", // Cool Gray
+];
