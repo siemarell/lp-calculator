@@ -1,4 +1,4 @@
-import { computed, observable } from "mobx";
+import { action, computed, observable } from "mobx";
 type CreateUniswapV3Position = {
   p_l: number;
   p_u: number;
@@ -16,9 +16,11 @@ export class UniswapV3Position {
   @observable accessor p_u: number;
   @observable accessor initialPriceInToken1: number;
   @observable accessor initialPositionValueInToken1: number;
-  @observable accessor t0Part: number | undefined;
-
   @observable accessor apr: number;
+
+  @computed get initialTokenAmounts(): [number, number] {
+    return this.token_amounts(this.initialPriceInToken1);
+  }
 
   getFeesInToken1(daysInPosition: number) {
     return (
@@ -30,6 +32,14 @@ export class UniswapV3Position {
   get label(): string {
     return `UniV3 IL ${this.p_l} ${this.p_u}`;
   }
+
+  get isCustomTokenDistribution(): boolean {
+    return this.t0Part != null;
+  }
+  @action.bound setCustomTokenDistribution(t0Part: number | undefined) {
+    this.t0Part = t0Part;
+  }
+  @observable accessor t0Part: number | undefined;
 
   constructor({
     p_u,
