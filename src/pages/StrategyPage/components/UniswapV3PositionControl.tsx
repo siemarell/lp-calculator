@@ -6,7 +6,10 @@ import {
   TextField, 
   InputAdornment,
   Typography,
-  Grid
+  Grid,
+  FormControlLabel,
+  Switch,
+  Box
 } from "@mui/material";
 
 export const UniswapV3PositionControl = observer(
@@ -78,6 +81,23 @@ export const UniswapV3PositionControl = observer(
             />
           </Grid>
           <Grid item xs={12} sm={4}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={props.position.isCustomTokenDistribution}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      props.position.setCustomTokenDistribution(0.5);
+                    } else {
+                      props.position.setCustomTokenDistribution(undefined);
+                    }
+                  }}
+                />
+              }
+              label="Custom Token Distribution"
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
             <TextField
               label="Token0 Part"
               type="number"
@@ -90,9 +110,10 @@ export const UniswapV3PositionControl = observer(
               }}
               size="small"
               fullWidth
+              disabled={!props.position.isCustomTokenDistribution}
               value={props.position.t0Part ?? 0.5}
               onChange={(e) => {
-                props.position.t0Part = Number(e.target.value);
+                props.position.setCustomTokenDistribution(Number(e.target.value));
               }}
             />
           </Grid>
@@ -113,6 +134,22 @@ export const UniswapV3PositionControl = observer(
             />
           </Grid>
         </Grid>
+
+        <Box mt={2}>
+          <Typography variant="subtitle1">Initial Token Amounts:</Typography>
+          <Grid container spacing={2} mt={1}>
+            <Grid item xs={6}>
+              <Typography>
+                Token0: {props.position.initialTokenAmounts[0].toFixed(4)}
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography>
+                Token1: {props.position.initialTokenAmounts[1].toFixed(4)}
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
       </Block>
     );
   },
