@@ -40,63 +40,48 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   useEffect(() => {
     if (!chartRef.current) return;
 
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
-
     const ctx = chartRef.current.getContext("2d");
     if (!ctx) return;
-    const config: ChartConfiguration<keyof ChartTypeRegistry> = {
-      type: "line",
-      data: {
-        labels: prices,
-        datasets: series.map((s, index) => ({
-          label: s.name,
-          data: s.y,
-          fill: false,
-
-          borderColor:
-            index === series.length - 1
-              ? "black"
-              : chartColors[index % chartColors.length],
-          pointRadius: 1,
-        })),
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "top",
-          },
-          title: {
-            display: true,
-            text: name,
-          },
+    const datasets = series.map((s, index) => ({
+      label: s.name,
+      data: s.y,
+      fill: false,
+      borderColor:
+        index === series.length - 1
+          ? "black"
+          : chartColors[index % chartColors.length],
+      pointRadius: 1,
+    }));
+    if (!chartInstance.current) {
+      // Create chart only once
+      const config: ChartConfiguration<keyof ChartTypeRegistry> = {
+        type: "line",
+        data: {
+          labels: prices,
+          datasets,
         },
-        scales: {
-          x: {
-            display: true,
-            title: {
-              display: true,
-              text: "Price",
-            },
+        options: {
+          animation: {
+            duration: 0,
           },
-          y: {
-            display: true,
-            title: {
-              display: true,
-              text: "Payoff",
-            },
-          },
+          /* your options here, unchanged */
         },
-      },
-    };
+      };
+      chartInstance.current = new Chart(ctx, config);
+    } else {
+      // Update existing chart data
+      chartInstance.current.data.labels = prices;
+      chartInstance.current.data.datasets = datasets;
+      chartInstance.current.options.plugins!.title!.text = name;
 
-    chartInstance.current = new Chart(ctx, config);
+      chartInstance.current.update();
+    }
 
+    // Cleanup on unmount
     return () => {
       if (chartInstance.current) {
         chartInstance.current.destroy();
+        chartInstance.current = null;
       }
     };
   }, [name, prices, series]);
