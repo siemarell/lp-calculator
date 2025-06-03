@@ -14,7 +14,7 @@ export const UniswapV3PositionControl = observer(
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
         <Typography variant="h6">
-          {props.position.label}
+          Uniswap v3
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>

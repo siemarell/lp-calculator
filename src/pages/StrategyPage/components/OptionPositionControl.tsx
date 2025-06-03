@@ -3,64 +3,51 @@ import { observer } from "mobx-react-lite";
 import { OptionPosition, OptionType, PositionType } from "src/strategy/options";
 import { Block } from "src/components/Block";
 import { 
-  Radio, 
-  RadioGroup, 
-  FormControlLabel, 
+  Select,
+  MenuItem,
   FormControl, 
-  FormLabel, 
+  InputLabel,
   TextField, 
-  Grid
+  Grid,
+  Typography
 } from "@mui/material";
 
 export const OptionPositionControl = observer(
   (props: { option: OptionPosition; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
+        <Typography variant="h6">Option</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Option Type</FormLabel>
-              <RadioGroup
-                row
+            <FormControl fullWidth size="small">
+              <InputLabel id="option-type-label">Option Type</InputLabel>
+              <Select
+                labelId="option-type-label"
                 value={props.option.optionType}
+                label="Option Type"
                 onChange={(e) => {
                   props.option.optionType = e.target.value as OptionType;
                 }}
               >
-                <FormControlLabel 
-                  value={OptionType.CALL} 
-                  control={<Radio />} 
-                  label={OptionType.CALL} 
-                />
-                <FormControlLabel 
-                  value={OptionType.PUT} 
-                  control={<Radio />} 
-                  label={OptionType.PUT} 
-                />
-              </RadioGroup>
+                <MenuItem value={OptionType.CALL}>{OptionType.CALL}</MenuItem>
+                <MenuItem value={OptionType.PUT}>{OptionType.PUT}</MenuItem>
+              </Select>
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Position Type</FormLabel>
-              <RadioGroup
-                row
+            <FormControl fullWidth size="small">
+              <InputLabel id="position-type-label">Position Type</InputLabel>
+              <Select
+                labelId="position-type-label"
                 value={props.option.position}
+                label="Position Type"
                 onChange={(e) => {
                   props.option.position = e.target.value as PositionType;
                 }}
               >
-                <FormControlLabel 
-                  value={PositionType.BUY} 
-                  control={<Radio />} 
-                  label={PositionType.BUY} 
-                />
-                <FormControlLabel 
-                  value={PositionType.SELL} 
-                  control={<Radio />} 
-                  label={PositionType.SELL} 
-                />
-              </RadioGroup>
+                <MenuItem value={PositionType.BUY}>{PositionType.BUY}</MenuItem>
+                <MenuItem value={PositionType.SELL}>{PositionType.SELL}</MenuItem>
+              </Select>
             </FormControl>
           </Grid>
         </Grid>
