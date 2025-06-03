@@ -134,16 +134,24 @@ export const UniswapV3PositionControl = observer(
         </Grid>
 
         <Box mt={2}>
-          <Typography variant="subtitle1">Initial Token Amounts:</Typography>
-          <Grid container spacing={2} mt={1}>
+          <Typography variant="subtitle1" mb={0.5}>Initial Token Amounts:</Typography>
+          <Grid container spacing={2}>
             <Grid item xs={6}>
-              <Typography>
+              <Typography variant="body1" fontWeight="medium">
                 Token0: {props.position.initialTokenAmounts[0].toFixed(4)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {((props.position.initialTokenAmounts[0] * props.position.initialPriceInToken1) / 
+                  props.position.initialPositionValueInToken1 * 100).toFixed(2)}%
               </Typography>
             </Grid>
             <Grid item xs={6}>
-              <Typography>
+              <Typography variant="body1" fontWeight="medium">
                 Token1: {props.position.initialTokenAmounts[1].toFixed(4)}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {(props.position.initialTokenAmounts[1] / 
+                  props.position.initialPositionValueInToken1 * 100).toFixed(2)}%
               </Typography>
             </Grid>
           </Grid>
