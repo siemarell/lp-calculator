@@ -1,7 +1,7 @@
 import { OptionPosition, OptionType, PositionType } from "./options";
 import { UniswapV3Position } from "./uniswap_v3";
 import { linSpace } from "../utils/linespace";
-import { computed, makeObservable, observable } from "mobx";
+import { computed, observable } from "mobx";
 
 interface Series {
   x: number[];
@@ -60,18 +60,15 @@ export class Strategy {
         //   name: `Range ${position.p_l} - ${position.p_u}`,
         // });
 
-        // Add current price line
-        if (position.token0_price_in_token1) {
-          series.push({
-            x: [
-              position.token0_price_in_token1,
-              position.token0_price_in_token1,
-            ],
-            y: [-Infinity, Infinity],
-            line: { color: "red", dash: "dot" },
-            name: "Current Price",
-          });
-        }
+        series.push({
+          x: [
+            position.initialPriceInToken1,
+            position.initialPositionValueInToken1,
+          ],
+          y: [-Infinity, Infinity],
+          line: { color: "red", dash: "dot" },
+          name: "Current Price",
+        });
 
         // Calculate impermanent loss
         const il = position.impermanent_loss(prices) as number[];
@@ -85,7 +82,7 @@ export class Strategy {
         });
 
         // Calculate and add collected fees
-        const collected_fees = position.calculate_fees(this.daysInPosition);
+        const collected_fees = position.getFeesInToken1(this.daysInPosition);
         if (collected_fees) {
           series.push({
             x: [prices[0], prices[prices.length - 1]],
@@ -146,9 +143,14 @@ export const usdc_eth_unichain_my_may24_strategy = new Strategy({
   name: "My ETH-USDC $1600, 70%/30%, 30d Call Hedge",
   positions: [
     new OptionPosition(OptionType.CALL, PositionType.BUY, 0.5, 3200, 55.9),
-    new UniswapV3Position(2360, 3600)
-      .provide_liquidity(2520, 1600, 0.78)
-      .set_expected_daily_profit_per_1000_token1(1.0),
+    new UniswapV3Position({
+      p_l: 2360,
+      p_u: 3600,
+      initialPriceInToken1: 2520,
+      initialPositionValueInToken1: 1600,
+      t0Part: 0.78,
+      apr: 40,
+    }),
   ],
   minPrice: 1500,
   maxPrice: 3600,
