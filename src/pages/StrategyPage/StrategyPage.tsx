@@ -14,6 +14,17 @@ import { H3 } from "src/components/H3";
 import { H1 } from "src/components/H1";
 import { Separator } from "src/components/Separator";
 import { UniswapV3Position } from "src/strategy/uniswap_v3";
+import { 
+  Radio, 
+  RadioGroup, 
+  FormControlLabel, 
+  FormControl, 
+  FormLabel, 
+  TextField, 
+  InputAdornment,
+  Typography,
+  Grid
+} from "@mui/material";
 
 interface StrategyPageProps {
   className?: string;
@@ -53,86 +64,98 @@ const OptionPositionControl = observer(
   (props: { option: OptionPosition; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
-        <H4 className={"flex gap-2"}>
-          <input
-            type={"radio"}
-            onChange={(e) => {
-              props.option.optionType = OptionType.CALL;
-            }}
-            checked={props.option.optionType === OptionType.CALL}
-          />
-          {OptionType.CALL}
-          <input
-            onChange={(e) => {
-              console.log(e);
-              props.option.optionType = OptionType.PUT;
-            }}
-            type={"radio"}
-            checked={props.option.optionType === OptionType.PUT}
-          />
-          {OptionType.PUT}
-          <Separator axis={"y"} />
-          <input
-            onChange={(e) => {
-              if (e.target.checked) {
-                props.option.position = PositionType.BUY;
-              }
-            }}
-            type={"radio"}
-            checked={props.option.position === PositionType.BUY}
-          />
-          {PositionType.BUY}
-          <input
-            onChange={(e) => {
-              if (e.target.checked) {
-                props.option.position = PositionType.SELL;
-              }
-            }}
-            type={"radio"}
-            checked={props.option.position === PositionType.SELL}
-          />
-          {PositionType.SELL}
-        </H4>
-        <div className={"flex items-center gap-4"}>
-          <label className={"flex gap-2"}>
-            Price
-            <input
-              step={0.5}
-              type={"number"}
-              className={"w-16 rounded-xl border px-2"}
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Option Type</FormLabel>
+              <RadioGroup
+                row
+                value={props.option.optionType}
+                onChange={(e) => {
+                  props.option.optionType = e.target.value as OptionType;
+                }}
+              >
+                <FormControlLabel 
+                  value={OptionType.CALL} 
+                  control={<Radio />} 
+                  label={OptionType.CALL} 
+                />
+                <FormControlLabel 
+                  value={OptionType.PUT} 
+                  control={<Radio />} 
+                  label={OptionType.PUT} 
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Position Type</FormLabel>
+              <RadioGroup
+                row
+                value={props.option.position}
+                onChange={(e) => {
+                  props.option.position = e.target.value as PositionType;
+                }}
+              >
+                <FormControlLabel 
+                  value={PositionType.BUY} 
+                  control={<Radio />} 
+                  label={PositionType.BUY} 
+                />
+                <FormControlLabel 
+                  value={PositionType.SELL} 
+                  control={<Radio />} 
+                  label={PositionType.SELL} 
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Price"
+              type="number"
+              InputProps={{
+                inputProps: { step: 0.5 }
+              }}
+              size="small"
               value={props.option.premium_per_item}
               onChange={(e) => {
-                props.option.premium_per_item = Number(e.currentTarget.value);
+                props.option.premium_per_item = Number(e.target.value);
               }}
             />
-          </label>
-
-          <label className={"flex gap-2"}>
-            Quantity
-            <input
-              step={0.5}
-              type={"number"}
-              className={"w-16 rounded-xl border px-2"}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Quantity"
+              type="number"
+              InputProps={{
+                inputProps: { step: 0.5 }
+              }}
+              size="small"
               value={props.option.quantity}
               onChange={(e) => {
-                props.option.quantity = Number(e.currentTarget.value);
+                props.option.quantity = Number(e.target.value);
               }}
             />
-          </label>
-
-          <label className={"flex gap-2"}>
-            Strike
-            <input
-              step={0.5}
-              type={"number"}
-              className={"w-20 rounded-xl border px-2"}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Strike"
+              type="number"
+              InputProps={{
+                inputProps: { step: 0.5 }
+              }}
+              size="small"
               value={props.option.strike_price}
               onChange={(e) => {
-                props.option.strike_price = Number(e.currentTarget.value);
+                props.option.strike_price = Number(e.target.value);
               }}
             />
-          </label>
-        </div>
+          </Grid>
+        </Grid>
       </Block>
     );
   },
@@ -142,91 +165,106 @@ const UniswapV3PositionControl = observer(
   (props: { position: UniswapV3Position; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
-        <H4 className={"flex gap-2"}>
+        <Typography variant="h6">
           {props.position.label}
-        </H4>
-        <div className={"flex flex-wrap items-center gap-4"}>
-          <label className={"flex gap-2"}>
-            Lower Price
-            <input
-              step={10}
-              type={"number"}
-              className={"w-20 rounded-xl border px-2"}
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Lower Price"
+              type="number"
+              InputProps={{
+                inputProps: { step: 10 }
+              }}
+              size="small"
+              fullWidth
               value={props.position.p_l}
               onChange={(e) => {
-                props.position.p_l = Number(e.currentTarget.value);
+                props.position.p_l = Number(e.target.value);
               }}
             />
-          </label>
-
-          <label className={"flex gap-2"}>
-            Upper Price
-            <input
-              step={10}
-              type={"number"}
-              className={"w-20 rounded-xl border px-2"}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Upper Price"
+              type="number"
+              InputProps={{
+                inputProps: { step: 10 }
+              }}
+              size="small"
+              fullWidth
               value={props.position.p_u}
               onChange={(e) => {
-                props.position.p_u = Number(e.currentTarget.value);
+                props.position.p_u = Number(e.target.value);
               }}
             />
-          </label>
-
-          <label className={"flex gap-2"}>
-            Initial Price
-            <input
-              step={10}
-              type={"number"}
-              className={"w-20 rounded-xl border px-2"}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Initial Price"
+              type="number"
+              InputProps={{
+                inputProps: { step: 10 }
+              }}
+              size="small"
+              fullWidth
               value={props.position.initialPriceInToken1}
               onChange={(e) => {
-                props.position.initialPriceInToken1 = Number(e.currentTarget.value);
+                props.position.initialPriceInToken1 = Number(e.target.value);
               }}
             />
-          </label>
-        </div>
-        <div className={"flex flex-wrap items-center gap-4"}>
-          <label className={"flex gap-2"}>
-            Position Value
-            <input
-              step={100}
-              type={"number"}
-              className={"w-20 rounded-xl border px-2"}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Position Value"
+              type="number"
+              InputProps={{
+                inputProps: { step: 100 }
+              }}
+              size="small"
+              fullWidth
               value={props.position.initialPositionValueInToken1}
               onChange={(e) => {
-                props.position.initialPositionValueInToken1 = Number(e.currentTarget.value);
+                props.position.initialPositionValueInToken1 = Number(e.target.value);
               }}
             />
-          </label>
-
-          <label className={"flex gap-2"}>
-            Token0 Part
-            <input
-              step={0.05}
-              type={"number"}
-              min={0}
-              max={1}
-              className={"w-16 rounded-xl border px-2"}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Token0 Part"
+              type="number"
+              InputProps={{
+                inputProps: { 
+                  step: 0.05,
+                  min: 0,
+                  max: 1
+                }
+              }}
+              size="small"
+              fullWidth
               value={props.position.t0Part ?? 0.5}
               onChange={(e) => {
-                props.position.t0Part = Number(e.currentTarget.value);
+                props.position.t0Part = Number(e.target.value);
               }}
             />
-          </label>
-
-          <label className={"flex gap-2"}>
-            APR %
-            <input
-              step={1}
-              type={"number"}
-              className={"w-16 rounded-xl border px-2"}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="APR %"
+              type="number"
+              InputProps={{
+                inputProps: { step: 1 },
+                endAdornment: <InputAdornment position="end">%</InputAdornment>
+              }}
+              size="small"
+              fullWidth
               value={props.position.apr}
               onChange={(e) => {
-                props.position.apr = Number(e.currentTarget.value);
+                props.position.apr = Number(e.target.value);
               }}
             />
-          </label>
-        </div>
+          </Grid>
+        </Grid>
       </Block>
     );
   },
