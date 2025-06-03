@@ -39,7 +39,7 @@ const StrategyControls = observer(
             case "option":
               return <OptionPositionControl key={p.id} option={p} />;
             case "uniswap_v3":
-              return null;
+              return <UniswapV3PositionControl key={p.id} position={p} />;
             default:
               assertNever(p);
           }
@@ -140,6 +140,94 @@ const OptionPositionControl = observer(
 
 const UniswapV3PositionControl = observer(
   (props: { position: UniswapV3Position; className?: string }) => {
-    return <Block className={cn(props.className)}></Block>;
+    return (
+      <Block className={cn("flex flex-col gap-4", props.className)}>
+        <H4 className={"flex gap-2"}>
+          {props.position.label}
+        </H4>
+        <div className={"flex flex-wrap items-center gap-4"}>
+          <label className={"flex gap-2"}>
+            Lower Price
+            <input
+              step={10}
+              type={"number"}
+              className={"w-20 rounded-xl border px-2"}
+              value={props.position.p_l}
+              onChange={(e) => {
+                props.position.p_l = Number(e.currentTarget.value);
+              }}
+            />
+          </label>
+
+          <label className={"flex gap-2"}>
+            Upper Price
+            <input
+              step={10}
+              type={"number"}
+              className={"w-20 rounded-xl border px-2"}
+              value={props.position.p_u}
+              onChange={(e) => {
+                props.position.p_u = Number(e.currentTarget.value);
+              }}
+            />
+          </label>
+
+          <label className={"flex gap-2"}>
+            Initial Price
+            <input
+              step={10}
+              type={"number"}
+              className={"w-20 rounded-xl border px-2"}
+              value={props.position.initialPriceInToken1}
+              onChange={(e) => {
+                props.position.initialPriceInToken1 = Number(e.currentTarget.value);
+              }}
+            />
+          </label>
+        </div>
+        <div className={"flex flex-wrap items-center gap-4"}>
+          <label className={"flex gap-2"}>
+            Position Value
+            <input
+              step={100}
+              type={"number"}
+              className={"w-20 rounded-xl border px-2"}
+              value={props.position.initialPositionValueInToken1}
+              onChange={(e) => {
+                props.position.initialPositionValueInToken1 = Number(e.currentTarget.value);
+              }}
+            />
+          </label>
+
+          <label className={"flex gap-2"}>
+            Token0 Part
+            <input
+              step={0.05}
+              type={"number"}
+              min={0}
+              max={1}
+              className={"w-16 rounded-xl border px-2"}
+              value={props.position.t0Part ?? 0.5}
+              onChange={(e) => {
+                props.position.t0Part = Number(e.currentTarget.value);
+              }}
+            />
+          </label>
+
+          <label className={"flex gap-2"}>
+            APR %
+            <input
+              step={1}
+              type={"number"}
+              className={"w-16 rounded-xl border px-2"}
+              value={props.position.apr}
+              onChange={(e) => {
+                props.position.apr = Number(e.currentTarget.value);
+              }}
+            />
+          </label>
+        </div>
+      </Block>
+    );
   },
 );
