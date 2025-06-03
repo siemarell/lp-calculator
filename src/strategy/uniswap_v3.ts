@@ -33,13 +33,11 @@ export class UniswapV3Position {
     return `UniV3 IL ${this.p_l} ${this.p_u}`;
   }
 
-  get isCustomTokenDistribution(): boolean {
-    return this.t0Part != null;
-  }
-  @action.bound setCustomTokenDistribution(t0Part: number | undefined) {
+  @observable accessor isCustomTokenDistribution: boolean = false;
+  @action.bound setCustomTokenDistribution(t0Part: number) {
     this.t0Part = t0Part;
   }
-  @observable accessor t0Part: number | undefined;
+  @observable accessor t0Part: number = 0.5;
 
   constructor({
     p_u,
@@ -209,7 +207,7 @@ export class UniswapV3Position {
   }
 
   @computed private get depositedAmount0() {
-    if (this.t0Part == null) {
+    if (!this.isCustomTokenDistribution) {
       return this.amountsAndLiquidityForPosition.amount0;
     }
     return (
@@ -218,7 +216,7 @@ export class UniswapV3Position {
     );
   }
   @computed private get depositedAmount1() {
-    if (this.t0Part == null) {
+    if (!this.isCustomTokenDistribution) {
       return this.amountsAndLiquidityForPosition.amount1;
     }
     return this.initialPositionValueInToken1 * (1 - this.t0Part);

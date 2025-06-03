@@ -2,30 +2,28 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { UniswapV3Position } from "src/strategy/uniswap_v3";
 import { Block } from "src/components/Block";
-import { 
-  TextField, 
+import {
+  TextField,
   InputAdornment,
   Typography,
   Grid,
   FormControlLabel,
   Switch,
-  Box
+  Box,
 } from "@mui/material";
 
 export const UniswapV3PositionControl = observer(
   (props: { position: UniswapV3Position; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
-        <Typography variant="h6">
-          Uniswap v3
-        </Typography>
+        <Typography variant="h6">Uniswap v3</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
             <TextField
               label="Lower Price"
               type="number"
               InputProps={{
-                inputProps: { step: 10 }
+                inputProps: { step: 10 },
               }}
               size="small"
               fullWidth
@@ -40,7 +38,7 @@ export const UniswapV3PositionControl = observer(
               label="Upper Price"
               type="number"
               InputProps={{
-                inputProps: { step: 10 }
+                inputProps: { step: 10 },
               }}
               size="small"
               fullWidth
@@ -55,7 +53,7 @@ export const UniswapV3PositionControl = observer(
               label="Initial Price"
               type="number"
               InputProps={{
-                inputProps: { step: 10 }
+                inputProps: { step: 10 },
               }}
               size="small"
               fullWidth
@@ -70,13 +68,15 @@ export const UniswapV3PositionControl = observer(
               label="Position Value"
               type="number"
               InputProps={{
-                inputProps: { step: 100 }
+                inputProps: { step: 100 },
               }}
               size="small"
               fullWidth
               value={props.position.initialPositionValueInToken1}
               onChange={(e) => {
-                props.position.initialPositionValueInToken1 = Number(e.target.value);
+                props.position.initialPositionValueInToken1 = Number(
+                  e.target.value,
+                );
               }}
             />
           </Grid>
@@ -86,11 +86,7 @@ export const UniswapV3PositionControl = observer(
                 <Switch
                   checked={props.position.isCustomTokenDistribution}
                   onChange={(e) => {
-                    if (e.target.checked) {
-                      props.position.setCustomTokenDistribution(0.5);
-                    } else {
-                      props.position.setCustomTokenDistribution(undefined);
-                    }
+                    props.position.isCustomTokenDistribution = e.target.checked;
                   }}
                 />
               }
@@ -102,18 +98,20 @@ export const UniswapV3PositionControl = observer(
               label="Token0 Part"
               type="number"
               InputProps={{
-                inputProps: { 
+                inputProps: {
                   step: 0.05,
                   min: 0,
-                  max: 1
-                }
+                  max: 1,
+                },
               }}
               size="small"
               fullWidth
               disabled={!props.position.isCustomTokenDistribution}
-              value={props.position.t0Part ?? 0.5}
+              value={props.position.t0Part}
               onChange={(e) => {
-                props.position.setCustomTokenDistribution(Number(e.target.value));
+                props.position.setCustomTokenDistribution(
+                  Number(e.target.value),
+                );
               }}
             />
           </Grid>
@@ -123,7 +121,7 @@ export const UniswapV3PositionControl = observer(
               type="number"
               InputProps={{
                 inputProps: { step: 1 },
-                endAdornment: <InputAdornment position="end">%</InputAdornment>
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
               }}
               size="small"
               fullWidth
