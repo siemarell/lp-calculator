@@ -11,6 +11,7 @@ import {
   LineController,
   PointElement,
   LineElement,
+  Legend,
 } from "chart.js";
 import { Strategy } from "../strategy/strategy";
 import { observer } from "mobx-react-lite";
@@ -23,6 +24,7 @@ Chart.register(
   LineController,
   PointElement,
   LineElement,
+  Legend,
 );
 
 interface StrategyChartProps {
@@ -50,7 +52,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
         index === series.length - 1
           ? "black"
           : chartColors[index % chartColors.length],
-      pointRadius: 1,
+      pointRadius: 1.5,
     }));
     if (!chartInstance.current) {
       // Create chart only once
@@ -64,17 +66,117 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
           animation: {
             duration: 0,
           },
-          /* your options here, unchanged */
+          plugins: {
+            legend: {
+              display: true,
+              position: "top",
+              labels: {
+                usePointStyle: true,
+                boxWidth: 10,
+                padding: 20,
+                font: {
+                  size: 12,
+                },
+              },
+              onClick: (e, legendItem, legend) => {
+                const index = legendItem.datasetIndex;
+                if (index !== undefined) {
+                  // Toggle the visibility of the dataset
+                  const meta = chartInstance.current?.getDatasetMeta(index);
+                  if (meta) {
+                    // Toggle visibility
+                    meta.hidden = !meta.hidden;
+                    // Update the chart
+                    legend.chart.update();
+                  }
+                }
+              },
+            },
+            tooltip: {
+              enabled: true,
+              callbacks: {
+                label: function (context) {
+                  let label = context.dataset.label || "";
+                  if (label) {
+                    label += ": ";
+                  }
+                  if (context.parsed.y !== null) {
+                    label += new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(context.parsed.y);
+                  }
+                  return label;
+                },
+              },
+            },
+          },
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "Price",
+                font: {
+                  size: 14,
+                  weight: "bold",
+                },
+              },
+              // ticks: {
+              //   callback: function (value, index, values) {
+              //     return "$" + value;
+              //   },
+              // },
+            },
+            y: {
+              title: {
+                display: true,
+                text: "Profit",
+                font: {
+                  size: 14,
+                  weight: "bold",
+                },
+              },
+              ticks: {
+                callback: function (value, index, values) {
+                  return "$" + value;
+                },
+              },
+            },
+          },
         },
       };
       chartInstance.current = new Chart(ctx, config);
     } else {
-      // Update existing chart data
-      chartInstance.current.data.labels = prices;
-      chartInstance.current.data.datasets = datasets;
-      chartInstance.current.options.plugins!.title!.text = name;
+      // Update existing chart data while preserving visibility state
+      const chart = chartInstance.current;
 
-      chartInstance.current.update();
+      // Store current visibility states
+      const hiddenStates = chart.data.datasets.map((_, index) => {
+        const meta = chart.getDatasetMeta(index);
+        return meta.hidden;
+      });
+
+      // Update data
+      chart.data.labels = prices;
+      chart.data.datasets = datasets;
+      // Only set title text if the title plugin exists
+      if (chart.options.plugins?.title) {
+        chart.options.plugins.title.text = name;
+      }
+
+      // Restore visibility states (if number of datasets matches)
+      if (hiddenStates.length === datasets.length) {
+        hiddenStates.forEach((hidden, index) => {
+          const meta = chart.getDatasetMeta(index);
+          meta.hidden = hidden;
+        });
+      }
+
+      chart.update();
     }
 
     // Cleanup on unmount
@@ -87,7 +189,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   }, [name, prices, series]);
 
   return (
-    <div className={cn("", props.className)}>
+    <div className={cn("h-[400px]", props.className)}>
       <canvas ref={chartRef}></canvas>
     </div>
   );
