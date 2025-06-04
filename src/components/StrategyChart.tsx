@@ -1,22 +1,78 @@
 import cn from "classnames";
-import { ChartConfiguration, ChartTypeRegistry, Plugin } from "chart.js/auto";
+import { ChartConfiguration, ChartOptions, Plugin } from "chart.js/auto";
 import { useEffect, useRef } from "react";
 import {
   BarController,
   BarElement,
   CategoryScale,
   Chart,
-  LinearScale,
-  Tooltip,
-  LineController,
-  PointElement,
-  LineElement,
   Legend,
+  LinearScale,
+  LineController,
+  LineElement,
+  PointElement,
+  Tooltip,
 } from "chart.js";
 import { Strategy } from "../strategy/strategy";
 import { observer } from "mobx-react-lite";
-import { computed } from "mobx";
 import { UniswapV3Position } from "src/strategy/uniswap_v3";
+
+// Type definitions for annotations
+interface RectangleAnnotation {
+  type: "rectangle";
+  x0: number;
+  x1: number;
+  fillColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+}
+
+interface HorizontalLineAnnotation {
+  type: "horizontalLine";
+  y: number;
+  color?: string;
+  lineWidth?: number;
+  dash?: number[];
+}
+
+interface VerticalLineAnnotation {
+  type: "verticalLine";
+  x: number;
+  color?: string;
+  lineWidth?: number;
+  dash?: number[];
+}
+
+type Annotation =
+  | RectangleAnnotation
+  | HorizontalLineAnnotation
+  | VerticalLineAnnotation;
+
+// Extend ChartOptions to include annotations
+interface ExtendedChartOptions extends ChartOptions<"line"> {
+  annotations?: Annotation[];
+}
+
+// Extend ChartConfiguration to use our extended options
+interface ExtendedChartConfiguration
+  extends Omit<ChartConfiguration<"line">, "options"> {
+  options?: ExtendedChartOptions;
+}
+
+// Type for series data
+interface SeriesData {
+  name: string;
+  y: number[];
+  color?: string;
+  width?: number;
+  dash?: number[];
+}
+
+// Type for chart data result
+interface ChartDataResult {
+  series: SeriesData[];
+  annotations: Annotation[];
+}
 
 Chart.register(
   CategoryScale,
@@ -36,7 +92,7 @@ interface StrategyChartProps {
 }
 
 // Chart.js plugin for drawing annotations
-const annotationPlugin: Plugin = {
+const annotationPlugin: Plugin<"line"> = {
   id: "customAnnotations",
   beforeDraw: (chart) => {
     const ctx = chart.ctx;
@@ -46,11 +102,12 @@ const annotationPlugin: Plugin = {
 
     if (!ctx || !chartArea || !xScale || !yScale) return;
 
-    const annotations = (chart.config.options as any).annotations || [];
+    const options = chart.config.options as ExtendedChartOptions;
+    const annotations = options.annotations || [];
 
     ctx.save();
 
-    annotations.forEach((annotation: any) => {
+    annotations.forEach((annotation: Annotation) => {
       switch (annotation.type) {
         case "rectangle": {
           // Draw price range rectangle
@@ -71,28 +128,31 @@ const annotationPlugin: Plugin = {
           break;
         }
 
-        case "horizontalLine": { // Draw horizontal line
-          const yPos = yScale.getPixelForValue(annotation.y);
+        case "horizontalLine":
+          // Draw horizontal line
+          {
+            const yPos = yScale.getPixelForValue(annotation.y);
 
-          ctx.strokeStyle = annotation.color || "blue";
-          ctx.lineWidth = annotation.lineWidth || 2;
+            ctx.strokeStyle = annotation.color || "blue";
+            ctx.lineWidth = annotation.lineWidth || 2;
 
-          if (annotation.dash) {
-            ctx.setLineDash(annotation.dash);
-          }
+            if (annotation.dash) {
+              ctx.setLineDash(annotation.dash);
+            }
 
-          ctx.beginPath();
-          ctx.moveTo(chartArea.left, yPos);
-          ctx.lineTo(chartArea.right, yPos);
-          ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(chartArea.left, yPos);
+            ctx.lineTo(chartArea.right, yPos);
+            ctx.stroke();
 
-          if (annotation.dash) {
-            ctx.setLineDash([]);
+            if (annotation.dash) {
+              ctx.setLineDash([]);
+            }
           }
           break;
-        }
 
-        case "verticalLine": { // Draw vertical line
+        case "verticalLine": {
+          // Draw vertical line
           const xPos = xScale.getPixelForValue(annotation.x);
 
           ctx.strokeStyle = annotation.color || "red";
@@ -123,7 +183,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const configBuilder = new ConfigBuilder(props.strategy);
-  const { series, annotations } = configBuilder.chartData;
+  const { series, annotations } = configBuilder.getChartData();
   const name = props.strategy.name;
   const prices = props.strategy.prices;
 
@@ -148,7 +208,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
       Chart.register(annotationPlugin);
 
       // Create chart only once
-      const config: ChartConfiguration<keyof ChartTypeRegistry> = {
+      const config: ExtendedChartConfiguration = {
         type: "line",
         data: {
           labels: prices,
@@ -158,7 +218,6 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
           animation: {
             duration: 0,
           },
-          //@ts-expect-error asdf
           annotations: annotations, // Pass annotations to the plugin
           plugins: {
             legend: {
@@ -251,7 +310,8 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
       // Update data
       chart.data.labels = prices;
       chart.data.datasets = datasets;
-      (chart.config.options as any).annotations = annotations;
+      const extendedOptions = chart.config.options as ExtendedChartOptions;
+      extendedOptions.annotations = annotations;
 
       // Restore visibility states (if number of datasets matches)
       if (hiddenStates.length === datasets.length) {
@@ -296,8 +356,7 @@ const chartColors = [
 class ConfigBuilder {
   constructor(private strategy: Strategy) {}
 
-  @computed
-  get chartData() {
+  getChartData(): ChartDataResult {
     const prices = this.strategy.prices;
 
     // Initialize total payoff array with zeros
@@ -305,8 +364,8 @@ class ConfigBuilder {
     let static_payoff = 0;
 
     // Data for the plot
-    const series = [];
-    const annotations = [];
+    const series: SeriesData[] = [];
+    const annotations: Annotation[] = [];
 
     for (const position of this.strategy.positions) {
       if (position instanceof UniswapV3Position) {

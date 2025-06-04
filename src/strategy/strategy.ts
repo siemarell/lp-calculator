@@ -1,16 +1,8 @@
 import { OptionPosition, OptionType, PositionType } from "./options";
 import { UniswapV3Position } from "./uniswap_v3";
 import { linSpace } from "../utils/linespace";
-import { computed, observable } from "mobx";
+import { observable } from "mobx";
 
-interface Series {
-  x: number[];
-  y: number[];
-  name: string;
-  line?: { color?: string; dash?: string; width?: number };
-  fillcolor?: string;
-  opacity?: number;
-}
 interface StrategyDTO {
   name: string;
   positions: Array<UniswapV3Position | OptionPosition>;
@@ -51,6 +43,6 @@ export const usdc_eth_unichain_my_may24_strategy = new Strategy({
     }),
   ],
   minPrice: 1500,
-  maxPrice: 3600,
+  maxPrice: 4500,
   daysInPosition: 30,
 });
