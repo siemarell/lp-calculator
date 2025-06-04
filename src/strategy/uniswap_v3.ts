@@ -23,6 +23,13 @@ export class UniswapV3Position {
     return this.token_amounts(this.initialPriceInToken1);
   }
 
+  @computed get ilInToken1OnEdges() {
+    return this.impermanent_loss([this.p_l, this.p_u]);
+  }
+
+  @computed get combinedWeightedLossAtEdges() {
+    return this.ilInToken1OnEdges.reduce((a, b) => a + b, 0);
+  }
   getFeesInToken1(daysInPosition: number) {
     return (
       this.initialPositionValueInToken1 *
@@ -233,6 +240,8 @@ export class UniswapV3Position {
         initialPositionValueInToken1: this.initialPositionValueInToken1,
         t0Part: this.t0Part,
         apr: this.apr,
+        enabled: this.enabled,
+        isCustomTokenDistribution: this.isCustomTokenDistribution,
       },
     };
   }
@@ -243,6 +252,10 @@ export class UniswapV3Position {
     if (data.type !== "uniswap_v3") {
       throw new Error("Invalid position type");
     }
-    return new UniswapV3Position(data.data);
+    const position = new UniswapV3Position(data.data);
+    position.enabled = data.data.enabled ?? true;
+    position.isCustomTokenDistribution =
+      data.data.isCustomTokenDistribution ?? false;
+    return position;
   }
 }

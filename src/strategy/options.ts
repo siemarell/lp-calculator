@@ -49,27 +49,28 @@ export class OptionPosition {
   }
 
   // Equivalent to Python's method with type annotation
-  payoff(price: number | number[]): number | number[] {
-    if (Array.isArray(price)) {
-      return price.map((p) => this.payoff(p) as number);
-    }
+  payoff(prices: number[]): number[] {
+    const result: number[] = [];
+    for (let i = 0; i < prices.length; i++) {
+      const price = prices[i];
+      let payoff: number;
+      if (this.optionType === OptionType.CALL) {
+        payoff = Math.max(price - this.strike_price, 0) * this.quantity;
+      } else if (this.optionType === OptionType.PUT) {
+        payoff = Math.max(this.strike_price - price, 0) * this.quantity;
+      } else {
+        throw new Error("Invalid option type");
+      }
 
-    let payoff: number;
-    if (this.optionType === OptionType.CALL) {
-      payoff = Math.max(price - this.strike_price, 0) * this.quantity;
-    } else if (this.optionType === OptionType.PUT) {
-      payoff = Math.max(this.strike_price - price, 0) * this.quantity;
-    } else {
-      throw new Error("Invalid option type");
+      if (this.position === PositionType.BUY) {
+        result[i] = payoff - this.total_premium;
+      } else if (this.position === PositionType.SELL) {
+        result[i] = -payoff + this.total_premium;
+      } else {
+        throw new Error("Invalid position type");
+      }
     }
-
-    if (this.position === PositionType.BUY) {
-      return payoff - this.total_premium;
-    } else if (this.position === PositionType.SELL) {
-      return -payoff + this.total_premium;
-    } else {
-      throw new Error("Invalid position type");
-    }
+    return result;
   }
 
   toJson() {
@@ -81,6 +82,7 @@ export class OptionPosition {
         quantity: this.quantity,
         strike_price: this.strike_price,
         premium_per_item: this.premium_per_item,
+        enabled: this.enabled,
       },
     };
   }
@@ -89,12 +91,14 @@ export class OptionPosition {
     if (data.type !== "option") {
       throw new Error("Invalid position type");
     }
-    return new OptionPosition(
+    const position = new OptionPosition(
       data.data.optionType,
       data.data.position,
       data.data.quantity,
       data.data.strike_price,
       data.data.premium_per_item,
     );
+    position.enabled = data.data.enabled ?? true;
+    return position;
   }
 }

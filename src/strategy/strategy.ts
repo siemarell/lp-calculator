@@ -1,8 +1,8 @@
 import { OptionPosition, OptionType, PositionType } from "./options";
 import { UniswapV3Position } from "./uniswap_v3";
-import { FuturePosition } from "./futures";
+import { FuturePosition, FutureType } from "./futures";
 import { linSpace } from "../utils/linespace";
-import { observable } from "mobx";
+import { computed, observable } from "mobx";
 
 interface StrategyDTO {
   name: string;
@@ -14,8 +14,9 @@ interface StrategyDTO {
 
 export class Strategy {
   @observable accessor name: string;
-  @observable accessor positions: Array<UniswapV3Position | OptionPosition | FuturePosition>;
-  @observable accessor prices: number[] = [];
+  @observable accessor positions: Array<
+    UniswapV3Position | OptionPosition | FuturePosition
+  >;
   @observable accessor daysInPosition: number;
   @observable accessor minPrice: number;
   @observable accessor maxPrice: number;
@@ -31,22 +32,52 @@ export class Strategy {
     this.positions = positions;
     this.minPrice = minPrice;
     this.maxPrice = maxPrice;
-    this.prices = linSpace(minPrice, maxPrice, 100);
+
     this.daysInPosition = daysInPosition;
   }
 
-  updatePrices() {
-    this.prices = linSpace(this.minPrice, this.maxPrice, 100);
+  @computed
+  get prices() {
+    return linSpace(this.minPrice, this.maxPrice, 100);
   }
 
   removePosition(positionId: string) {
-    this.positions = this.positions.filter(p => p.id !== positionId);
+    this.positions = this.positions.filter((p) => p.id !== positionId);
+  }
+
+  addOptionPosition() {
+    const newPosition = new OptionPosition(
+      OptionType.CALL,
+      PositionType.BUY,
+      1.0, // quantity
+      this.minPrice + (this.maxPrice - this.minPrice) / 2, // strike at midpoint
+      10.0, // premium
+    );
+    this.positions.push(newPosition);
+  }
+
+  addUniswapV3Position() {
+    const midPrice = this.minPrice + (this.maxPrice - this.minPrice) / 2;
+    const newPosition = new UniswapV3Position({
+      p_l: midPrice * 0.8, // 20% below mid
+      p_u: midPrice * 1.2, // 20% above mid
+      initialPriceInToken1: midPrice,
+      initialPositionValueInToken1: 1000,
+      t0Part: 0.5,
+      apr: 20,
+    });
+    this.positions.push(newPosition);
+  }
+
+  addFuturePosition() {
+    const newPosition = new FuturePosition(FutureType.LONG, 1.0, 50, 20); // type LONG, amount 1.0, price 50 20% margin
+    this.positions.push(newPosition);
   }
 
   toJson() {
     return {
       name: this.name,
-      positions: this.positions.map(p => p.toJson()),
+      positions: this.positions.map((p) => p.toJson()),
       minPrice: this.minPrice,
       maxPrice: this.maxPrice,
       daysInPosition: this.daysInPosition,
@@ -54,7 +85,7 @@ export class Strategy {
     };
   }
 
-  static fromJson(data: any): Strategy {
+  static fromJson(data: ReturnType<Strategy["toJson"]>): Strategy {
     const positions = data.positions.map((p: any) => {
       if (p.type === "option") {
         return OptionPosition.fromJson(p);
@@ -67,13 +98,15 @@ export class Strategy {
       }
     });
 
-    return new Strategy({
+    const strategy = new Strategy({
       name: data.name,
       positions,
       minPrice: data.minPrice,
       maxPrice: data.maxPrice,
       daysInPosition: data.daysInPosition,
     });
+
+    return strategy;
   }
 }
 

@@ -15,13 +15,19 @@ import {
 } from "@mui/material";
 
 export const FuturePositionControl = observer(
-  (props: { position: FuturePosition; className?: string; onRemove: () => void }) => {
+  (props: {
+    position: FuturePosition;
+    className?: string;
+    onRemove: () => void;
+  }) => {
     return (
-      <Block className={cn(
-        "flex flex-col gap-4",
-        props.className,
-        !props.position.enabled && "opacity-50"
-      )}>
+      <Block
+        className={cn(
+          "flex flex-col gap-4",
+          props.className,
+          !props.position.enabled && "opacity-50",
+        )}
+      >
         <div className="flex items-center gap-4">
           <Typography variant="h6">Future</Typography>
           <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -48,19 +54,19 @@ export const FuturePositionControl = observer(
             />
             <button
               onClick={props.onRemove}
-              className="px-2 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600"
+              className="rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600"
             >
               Remove
             </button>
           </div>
         </div>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
             <TextField
               label="Amount"
               type="number"
               InputProps={{
-                inputProps: { step: 0.1 }
+                inputProps: { step: 0.1 },
               }}
               size="small"
               fullWidth
@@ -70,7 +76,22 @@ export const FuturePositionControl = observer(
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="Entry Price"
+              type="number"
+              InputProps={{
+                inputProps: { step: 0.1, min: 0 },
+              }}
+              size="small"
+              fullWidth
+              value={props.position.entryPrice}
+              onChange={(e) => {
+                props.position.entryPrice = Number(e.target.value);
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
             <TextField
               label="Margin"
               type="number"
@@ -90,4 +111,4 @@ export const FuturePositionControl = observer(
       </Block>
     );
   },
-); 
+);

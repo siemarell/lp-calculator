@@ -18,6 +18,8 @@ import { observer } from "mobx-react-lite";
 import { UniswapV3Position } from "src/strategy/uniswap_v3";
 import { FuturePosition } from "src/strategy/futures";
 import { Typography } from "@mui/material";
+import { OptionPosition } from "src/strategy/options";
+import { assertNever } from "src/utils/assertNever";
 
 // Type definitions for annotations
 interface RectangleAnnotation {
@@ -272,11 +274,11 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
           scales: {
             x: {
               type: "linear",
-              ticks: {
-                stepSize: Math.round(
-                  (prices[prices.length - 1] - prices[0]) / 10,
-                ),
-              },
+              // ticks: {
+              //   // stepSize: Math.round(
+              //   //   (prices[prices.length - 1] - prices[0]) / 10,
+              //   // ),
+              // },
               title: {
                 display: true,
                 text: "Price",
@@ -348,13 +350,12 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   }, [name, prices, series, annotations]);
 
   return (
-    <div className="relative h-[400px]">
+    <div className={cn("relative h-[400px]", props.className)}>
       <canvas ref={chartRef} className="h-full" />
-      <div className="absolute bottom-0 left-0 right-0 text-center bg-white py-2">
-        <Typography variant="h6">
-          Total Collected Fees: {total_fees.toFixed(2)} USDC
-        </Typography>
-      </div>
+
+      <Typography className="absolute bottom-[-10px] left-0 py-2" variant="h6">
+        Potential Fees: {total_fees.toFixed(2)}
+      </Typography>
     </div>
   );
 });
@@ -434,7 +435,7 @@ class ConfigBuilder {
         }
       } else if (position instanceof FuturePosition) {
         // Handle FuturePosition
-        const position_values = position.payoff(prices) as number[];
+        const position_values = position.payoff(prices);
 
         // Add position values to total payoff
         for (let i = 0; i < total_payoff.length; i++) {
@@ -448,9 +449,9 @@ class ConfigBuilder {
           color: chartColors[series.length % chartColors.length],
           dash: [5, 5],
         });
-      } else {
+      } else if (position instanceof OptionPosition) {
         // Handle OptionPosition
-        const position_values = position.payoff(prices) as number[];
+        const position_values = position.payoff(prices);
 
         // Add position values to total payoff
         for (let i = 0; i < total_payoff.length; i++) {
@@ -464,6 +465,8 @@ class ConfigBuilder {
           color: chartColors[series.length % chartColors.length],
           dash: [5, 5],
         });
+      } else {
+        assertNever(position);
       }
     }
 

@@ -2,12 +2,7 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { Strategy } from "src/strategy/strategy";
 import { Block } from "src/components/Block";
-import {
-  TextField,
-  InputAdornment,
-  Typography,
-  Grid,
-} from "@mui/material";
+import { TextField, InputAdornment, Typography, Grid } from "@mui/material";
 
 export const StrategySettingsControl = observer(
   (props: { strategy: Strategy; className?: string }) => {
@@ -21,7 +16,9 @@ export const StrategySettingsControl = observer(
               type="number"
               InputProps={{
                 inputProps: { step: 1, min: 1 },
-                endAdornment: <InputAdornment position="end">days</InputAdornment>,
+                endAdornment: (
+                  <InputAdornment position="end">days</InputAdornment>
+                ),
               }}
               size="small"
               fullWidth
@@ -43,7 +40,6 @@ export const StrategySettingsControl = observer(
               value={props.strategy.minPrice}
               onChange={(e) => {
                 props.strategy.minPrice = Number(e.target.value);
-                props.strategy.updatePrices();
               }}
             />
           </Grid>
@@ -59,7 +55,6 @@ export const StrategySettingsControl = observer(
               value={props.strategy.maxPrice}
               onChange={(e) => {
                 props.strategy.maxPrice = Number(e.target.value);
-                props.strategy.updatePrices();
               }}
             />
           </Grid>

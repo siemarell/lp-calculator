@@ -7,6 +7,7 @@ import { OptionPositionControl } from "./OptionPositionControl";
 import { UniswapV3PositionControl } from "./UniswapV3PositionControl";
 import { FuturePositionControl } from "./FuturePositionControl";
 import { StrategySettingsControl } from "./StrategySettingsControl";
+import { Button, Stack } from "@mui/material";
 
 export const StrategyControls = observer(
   (props: { strategy: Strategy; className?: string }) => {
@@ -44,6 +45,26 @@ export const StrategyControls = observer(
               assertNever(p);
           }
         })}
+        <Stack direction="row" spacing={2} className="mt-4">
+          <Button 
+            variant="outlined" 
+            onClick={() => props.strategy.addOptionPosition()}
+          >
+            Add Option
+          </Button>
+          <Button 
+            variant="outlined" 
+            onClick={() => props.strategy.addUniswapV3Position()}
+          >
+            Add Uniswap V3
+          </Button>
+          <Button 
+            variant="outlined" 
+            onClick={() => props.strategy.addFuturePosition()}
+          >
+            Add Future
+          </Button>
+        </Stack>
       </div>
     );
   },

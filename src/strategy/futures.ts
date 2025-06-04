@@ -14,13 +14,20 @@ export class FuturePosition {
   readonly type = "future" as const;
   @observable accessor futureType: FutureType;
   @observable accessor amount: number;
+  @observable accessor entryPrice: number;
   @observable accessor margin: number;
   @observable accessor enabled: boolean = true;
 
-  constructor(futureType: FutureType, amount: number, margin: number) {
+  constructor(
+    futureType: FutureType,
+    amount: number,
+    price: number,
+    margin: number,
+  ) {
     this.id = `future-${id++}`;
     this.futureType = futureType;
     this.amount = amount;
+    this.entryPrice = price;
     this.margin = Math.max(0, Math.min(100, margin)); // Ensure margin is between 0 and 100
   }
 
@@ -28,15 +35,11 @@ export class FuturePosition {
     return `${this.futureType} ${this.amount} @ ${this.margin}% margin`;
   }
 
-  payoff(price: number | number[]): number | number[] {
-    if (!this.enabled) return Array.isArray(price) ? price.map(() => 0) : 0;
-
-    if (Array.isArray(price)) {
-      return price.map((p) => this.payoff(p) as number);
-    }
-
+  payoff(prices: number[]): number[] {
     const multiplier = this.futureType === FutureType.LONG ? 1 : -1;
-    return multiplier * this.amount * (price - 1); // Assuming entry price is 1
+    return prices.map(
+      (price) => multiplier * this.amount * (price - this.entryPrice),
+    );
   }
 
   toJson() {
@@ -46,6 +49,8 @@ export class FuturePosition {
         futureType: this.futureType,
         amount: this.amount,
         margin: this.margin,
+        enabled: this.enabled,
+        price: this.entryPrice,
       },
     };
   }
@@ -54,10 +59,13 @@ export class FuturePosition {
     if (data.type !== "future") {
       throw new Error("Invalid position type");
     }
-    return new FuturePosition(
+    const position = new FuturePosition(
       data.data.futureType,
       data.data.amount,
+      data.data.price,
       data.data.margin,
     );
+    position.enabled = data.data.enabled ?? true;
+    return position;
   }
 }
