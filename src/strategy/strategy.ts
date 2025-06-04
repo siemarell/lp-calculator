@@ -20,6 +20,7 @@ export class Strategy {
   @observable accessor daysInPosition: number;
   @observable accessor minPrice: number;
   @observable accessor maxPrice: number;
+  @observable accessor hiddenSeries: Set<string> = new Set();
 
   constructor({
     name,
@@ -27,13 +28,14 @@ export class Strategy {
     minPrice,
     maxPrice,
     daysInPosition,
-  }: StrategyDTO) {
+    hiddenSeries = new Set(),
+  }: StrategyDTO & { hiddenSeries?: Set<string> }) {
     this.name = name;
     this.positions = positions;
     this.minPrice = minPrice;
     this.maxPrice = maxPrice;
-
     this.daysInPosition = daysInPosition;
+    this.hiddenSeries = hiddenSeries;
   }
 
   @computed
@@ -83,6 +85,7 @@ export class Strategy {
       maxPrice: this.maxPrice,
       daysInPosition: this.daysInPosition,
       savedAt: new Date().toISOString(),
+      hiddenSeries: Array.from(this.hiddenSeries),
     };
   }
 
@@ -105,26 +108,9 @@ export class Strategy {
       minPrice: data.minPrice,
       maxPrice: data.maxPrice,
       daysInPosition: data.daysInPosition,
+      hiddenSeries: new Set(data.hiddenSeries || []),
     });
 
     return strategy;
   }
 }
-
-export const usdc_eth_unichain_my_may24_strategy = new Strategy({
-  name: "My ETH-USDC $1600, 70%/30%, 30d Call Hedge",
-  positions: [
-    new OptionPosition(OptionType.CALL, PositionType.BUY, 0.5, 3200, 55.9),
-    new UniswapV3Position({
-      p_l: 2360,
-      p_u: 3600,
-      initialPriceInToken1: 2520,
-      initialPositionValueInToken1: 1600,
-      t0Part: 0.78,
-      apr: 40,
-    }),
-  ],
-  minPrice: 1500,
-  maxPrice: 4000,
-  daysInPosition: 30,
-});

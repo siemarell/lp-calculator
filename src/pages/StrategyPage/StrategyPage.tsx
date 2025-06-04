@@ -1,18 +1,11 @@
 import cn from "classnames";
 import { StrategyChart } from "src/components/StrategyChart";
-import {
-  Strategy,
-  usdc_eth_unichain_my_may24_strategy,
-} from "src/strategy/strategy";
+import { Strategy } from "src/strategy/strategy";
 import { PageRoot } from "src/components/PageRoot";
 import { observer } from "mobx-react-lite";
 import { H1 } from "src/components/H1";
 import { StrategyControls } from "./components/StrategyControls";
-import { OptionPosition } from "src/strategy/options";
-import { UniswapV3Position } from "src/strategy/uniswap_v3";
-import { useState, useRef, useEffect } from "react";
-import { FuturePosition } from "src/strategy/futures";
-import { assertNever } from "src/utils/assertNever";
+import { useEffect, useRef, useState } from "react";
 
 interface SavedStrategy {
   name: string;
@@ -21,6 +14,7 @@ interface SavedStrategy {
   maxPrice: number;
   daysInPosition: number;
   savedAt: string;
+  hiddenSeries: string[];
 }
 
 interface StrategyPageProps {

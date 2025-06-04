@@ -239,6 +239,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
       borderDash: s.dash || [],
       backgroundColor: "transparent",
       pointRadius: 1,
+      hidden: props.strategy.hiddenSeries.has(s.name),
     }));
 
     if (!chartInstance.current) {
@@ -275,6 +276,13 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
                   const meta = chartInstance.current?.getDatasetMeta(index);
                   if (meta) {
                     meta.hidden = !meta.hidden;
+                    // Update strategy's hiddenSeries state
+                    const seriesName = series[index].name;
+                    if (meta.hidden) {
+                      props.strategy.hiddenSeries.add(seriesName);
+                    } else {
+                      props.strategy.hiddenSeries.delete(seriesName);
+                    }
                     legend.chart.update();
                   }
                 }
