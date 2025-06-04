@@ -222,4 +222,25 @@ export class UniswapV3Position {
     }
     return this.initialPositionValueInToken1 * (1 - this.t0Part);
   }
+
+  toJson() {
+    return {
+      type: this.type,
+      data: {
+        p_l: this.p_l,
+        p_u: this.p_u,
+        initialPriceInToken1: this.initialPriceInToken1,
+        initialPositionValueInToken1: this.initialPositionValueInToken1,
+        t0Part: this.t0Part,
+        apr: this.apr,
+      }
+    };
+  }
+
+  static fromJson(data: { type: string; data: any }): UniswapV3Position {
+    if (data.type !== "uniswap_v3") {
+      throw new Error("Invalid position type");
+    }
+    return new UniswapV3Position(data.data);
+  }
 }

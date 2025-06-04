@@ -1,85 +1,11 @@
 import { observer } from "mobx-react-lite";
 import { Strategy } from "src/strategy/strategy";
-import { OptionPosition } from "src/strategy/options";
-import { UniswapV3Position } from "src/strategy/uniswap_v3";
 import { useState, useEffect } from "react";
-
-interface SavedStrategy {
-  name: string;
-  positions: Array<{
-    type: "option" | "uniswap_v3";
-    data: any;
-  }>;
-  minPrice: number;
-  maxPrice: number;
-  daysInPosition: number;
-  savedAt: string;
-}
 
 const STORAGE_KEY = "saved_strategies";
 
-const serializeStrategy = (strategy: Strategy): SavedStrategy => {
-  return {
-    name: strategy.name,
-    positions: strategy.positions.map(p => {
-      if (p.type === "option") {
-        return {
-          type: "option",
-          data: {
-            optionType: p.optionType,
-            position: p.position,
-            quantity: p.quantity,
-            strike_price: p.strike_price,
-            premium_per_item: p.premium_per_item,
-          }
-        };
-      } else {
-        return {
-          type: "uniswap_v3",
-          data: {
-            p_l: p.p_l,
-            p_u: p.p_u,
-            initialPriceInToken1: p.initialPriceInToken1,
-            initialPositionValueInToken1: p.initialPositionValueInToken1,
-            t0Part: p.t0Part,
-            apr: p.apr,
-          }
-        };
-      }
-    }),
-    minPrice: strategy.minPrice,
-    maxPrice: strategy.maxPrice,
-    daysInPosition: strategy.daysInPosition,
-    savedAt: new Date().toISOString(),
-  };
-};
-
-const deserializeStrategy = (data: SavedStrategy): Strategy => {
-  const positions = data.positions.map(p => {
-    if (p.type === "option") {
-      return new OptionPosition(
-        p.data.optionType,
-        p.data.position,
-        p.data.quantity,
-        p.data.strike_price,
-        p.data.premium_per_item,
-      );
-    } else {
-      return new UniswapV3Position(p.data);
-    }
-  });
-
-  return new Strategy({
-    name: data.name,
-    positions,
-    minPrice: data.minPrice,
-    maxPrice: data.maxPrice,
-    daysInPosition: data.daysInPosition,
-  });
-};
-
 export const StrategySaveRestore = observer(({ strategy }: { strategy: Strategy }) => {
-  const [savedStrategies, setSavedStrategies] = useState<SavedStrategy[]>([]);
+  const [savedStrategies, setSavedStrategies] = useState<any[]>([]);
   const [selectedStrategy, setSelectedStrategy] = useState<string>("");
 
   useEffect(() => {
@@ -94,7 +20,7 @@ export const StrategySaveRestore = observer(({ strategy }: { strategy: Strategy 
       alert("Please enter a strategy name");
       return;
     }
-    const serialized = serializeStrategy(strategy);
+    const serialized = strategy.toJson();
     const updated = [...savedStrategies, serialized];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     setSavedStrategies(updated);
@@ -105,7 +31,7 @@ export const StrategySaveRestore = observer(({ strategy }: { strategy: Strategy 
     const strategyData = savedStrategies.find(s => s.name === selectedStrategy);
     if (!strategyData) return;
 
-    const restored = deserializeStrategy(strategyData);
+    const restored = Strategy.fromJson(strategyData);
     Object.assign(strategy, restored);
   };
 

@@ -36,6 +36,37 @@ export class Strategy {
   updatePrices() {
     this.prices = linSpace(this.minPrice, this.maxPrice, 100);
   }
+
+  toJson() {
+    return {
+      name: this.name,
+      positions: this.positions.map(p => p.toJson()),
+      minPrice: this.minPrice,
+      maxPrice: this.maxPrice,
+      daysInPosition: this.daysInPosition,
+      savedAt: new Date().toISOString(),
+    };
+  }
+
+  static fromJson(data: any): Strategy {
+    const positions = data.positions.map((p: any) => {
+      if (p.type === "option") {
+        return OptionPosition.fromJson(p);
+      } else if (p.type === "uniswap_v3") {
+        return UniswapV3Position.fromJson(p);
+      } else {
+        throw new Error(`Unknown position type: ${p.type}`);
+      }
+    });
+
+    return new Strategy({
+      name: data.name,
+      positions,
+      minPrice: data.minPrice,
+      maxPrice: data.maxPrice,
+      daysInPosition: data.daysInPosition,
+    });
+  }
 }
 
 export const usdc_eth_unichain_my_may24_strategy = new Strategy({
