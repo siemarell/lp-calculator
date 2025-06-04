@@ -41,6 +41,7 @@ export default [
       eqeqeq: ["error", "always", { null: "ignore" }],
 
       "react/jsx-key": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
   eslintConfigPrettier,
