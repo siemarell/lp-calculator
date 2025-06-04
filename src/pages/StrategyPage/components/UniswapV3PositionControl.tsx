@@ -115,7 +115,7 @@ export const UniswapV3PositionControl = observer(
           <Grid container gap={2}>
             <Grid item xs={12}>
               <div className="flex items-center gap-4">
-                <Typography variant="subtitle2">Custom Distribution</Typography>
+                <Typography variant="subtitle2">Custom Token Distribution</Typography>
                 <Switch
                   checked={props.position.isCustomTokenDistribution}
                   onChange={(e) => {
