@@ -52,6 +52,7 @@ export class Strategy {
       1.0, // quantity
       this.minPrice + (this.maxPrice - this.minPrice) / 2, // strike at midpoint
       10.0, // premium
+      30, // default expiration days
     );
     this.positions.push(newPosition);
   }

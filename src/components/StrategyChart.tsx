@@ -503,7 +503,7 @@ class ConfigBuilder {
         });
       } else if (position instanceof OptionPosition) {
         // Handle OptionPosition
-        const position_values = position.payoff(prices);
+        const position_values = position.payoff(prices, this.strategy.daysInPosition);
 
         // Add position values to total payoff
         for (let i = 0; i < total_payoff.length; i++) {

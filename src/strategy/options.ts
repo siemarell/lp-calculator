@@ -21,6 +21,7 @@ export class OptionPosition {
   @observable accessor quantity: number;
   @observable accessor strike_price: number;
   @observable accessor premium_per_item: number;
+  @observable accessor expirationDays: number;
   @observable accessor enabled: boolean = true;
 
   constructor(
@@ -29,6 +30,7 @@ export class OptionPosition {
     quantity: number,
     strike_price: number,
     premium_per_item: number,
+    expirationDays: number = 30,
   ) {
     this.id = `option-${id++}`;
     this.optionType = optionType;
@@ -36,11 +38,12 @@ export class OptionPosition {
     this.quantity = quantity;
     this.strike_price = strike_price;
     this.premium_per_item = premium_per_item;
+    this.expirationDays = expirationDays;
   }
 
   // Equivalent to Python's property
   get label(): string {
-    return `${this.optionType} ${this.position} ${this.quantity} @ ${this.strike_price}. $${this.total_premium}`;
+    return `${this.optionType} ${this.position} ${this.quantity} @ ${this.strike_price}. $${this.total_premium} (${this.expirationDays}d)`;
   }
 
   // Equivalent to Python's property
@@ -48,24 +51,38 @@ export class OptionPosition {
     return this.quantity * this.premium_per_item;
   }
 
+  // Calculate Black-Scholes implied volatility based on option price
+  private calculateTimeValue(daysRemaining: number): number {
+    if (daysRemaining <= 0) return 0;
+    // Simple linear time decay for now
+    return daysRemaining / this.expirationDays;
+  }
+
   // Equivalent to Python's method with type annotation
-  payoff(prices: number[]): number[] {
+  payoff(prices: number[], daysRemaining?: number): number[] {
+    const timeValue = this.calculateTimeValue(daysRemaining ?? this.expirationDays);
     const result: number[] = [];
+
     for (let i = 0; i < prices.length; i++) {
       const price = prices[i];
-      let payoff: number;
+      let intrinsicValue: number;
+
       if (this.optionType === OptionType.CALL) {
-        payoff = Math.max(price - this.strike_price, 0) * this.quantity;
+        intrinsicValue = Math.max(price - this.strike_price, 0) * this.quantity;
       } else if (this.optionType === OptionType.PUT) {
-        payoff = Math.max(this.strike_price - price, 0) * this.quantity;
+        intrinsicValue = Math.max(this.strike_price - price, 0) * this.quantity;
       } else {
         throw new Error("Invalid option type");
       }
 
+      // For expired options (timeValue = 0), only intrinsic value remains
+      // For active options, we interpolate between current price and expiration
+      const timeAdjustedPremium = this.total_premium * timeValue;
+
       if (this.position === PositionType.BUY) {
-        result[i] = payoff - this.total_premium;
+        result[i] = intrinsicValue - timeAdjustedPremium;
       } else if (this.position === PositionType.SELL) {
-        result[i] = -payoff + this.total_premium;
+        result[i] = -intrinsicValue + timeAdjustedPremium;
       } else {
         throw new Error("Invalid position type");
       }
@@ -82,6 +99,7 @@ export class OptionPosition {
         quantity: this.quantity,
         strike_price: this.strike_price,
         premium_per_item: this.premium_per_item,
+        expirationDays: this.expirationDays,
         enabled: this.enabled,
       },
     };
@@ -97,6 +115,7 @@ export class OptionPosition {
       data.data.quantity,
       data.data.strike_price,
       data.data.premium_per_item,
+      data.data.expirationDays,
     );
     position.enabled = data.data.enabled ?? true;
     return position;

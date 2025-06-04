@@ -68,7 +68,7 @@ export const OptionPositionControl = observer(
           </div>
         </div>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={3}>
             <TextField
               label="Price"
               type="number"
@@ -83,7 +83,7 @@ export const OptionPositionControl = observer(
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={3}>
             <TextField
               label="Quantity"
               type="number"
@@ -98,7 +98,7 @@ export const OptionPositionControl = observer(
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={3}>
             <TextField
               label="Strike"
               type="number"
@@ -110,6 +110,24 @@ export const OptionPositionControl = observer(
               value={props.option.strike_price}
               onChange={(e) => {
                 props.option.strike_price = Number(e.target.value);
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3}>
+            <TextField
+              label="Expiration (days)"
+              type="number"
+              InputProps={{
+                inputProps: { 
+                  step: 1,
+                  min: 1
+                }
+              }}
+              size="small"
+              fullWidth
+              value={props.option.expirationDays}
+              onChange={(e) => {
+                props.option.expirationDays = Math.max(1, Number(e.target.value));
               }}
             />
           </Grid>
