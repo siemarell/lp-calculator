@@ -16,7 +16,20 @@ export const UniswapV3PositionControl = observer(
   (props: { position: UniswapV3Position; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
-        <Typography variant="h6">Uniswap v3</Typography>
+        <div className="flex justify-between items-center">
+          <Typography variant="h6">Uniswap v3</Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={props.position.enabled}
+                onChange={(e) => {
+                  props.position.enabled = e.target.checked;
+                }}
+              />
+            }
+            label="Enabled"
+          />
+        </div>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
             <TextField

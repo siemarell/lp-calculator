@@ -21,6 +21,7 @@ export class OptionPosition {
   @observable accessor quantity: number;
   @observable accessor strike_price: number;
   @observable accessor premium_per_item: number;
+  @observable accessor enabled: boolean = true;
 
   constructor(
     optionType: OptionType,

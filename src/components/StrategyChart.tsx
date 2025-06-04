@@ -374,6 +374,9 @@ class ConfigBuilder {
     const annotations: Annotation[] = [];
 
     for (const position of this.strategy.positions) {
+      // Skip disabled positions
+      if (!position.enabled) continue;
+
       if (position instanceof UniswapV3Position) {
         // Add price range rectangle annotation
         annotations.push({

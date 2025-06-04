@@ -9,14 +9,29 @@ import {
   InputLabel,
   TextField, 
   Grid,
-  Typography
+  Typography,
+  FormControlLabel,
+  Switch
 } from "@mui/material";
 
 export const OptionPositionControl = observer(
   (props: { option: OptionPosition; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
-        <Typography variant="h6">Option</Typography>
+        <div className="flex justify-between items-center">
+          <Typography variant="h6">Option</Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={props.option.enabled}
+                onChange={(e) => {
+                  props.option.enabled = e.target.checked;
+                }}
+              />
+            }
+            label="Enabled"
+          />
+        </div>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth size="small">

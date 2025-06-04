@@ -17,6 +17,7 @@ export class UniswapV3Position {
   @observable accessor initialPriceInToken1: number;
   @observable accessor initialPositionValueInToken1: number;
   @observable accessor apr: number;
+  @observable accessor enabled: boolean = true;
 
   @computed get initialTokenAmounts(): [number, number] {
     return this.token_amounts(this.initialPriceInToken1);
