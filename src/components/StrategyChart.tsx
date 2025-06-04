@@ -47,10 +47,20 @@ interface VerticalLineAnnotation {
   dash?: number[];
 }
 
+interface PointAnnotation {
+  type: "point";
+  x: number;
+  y: number;
+  color?: string;
+  radius?: number;
+  label?: string;
+}
+
 type Annotation =
   | RectangleAnnotation
   | HorizontalLineAnnotation
-  | VerticalLineAnnotation;
+  | VerticalLineAnnotation
+  | PointAnnotation;
 
 // Extend ChartOptions to include annotations
 interface ExtendedChartOptions extends ChartOptions<"line"> {
@@ -174,6 +184,28 @@ const annotationPlugin: Plugin<"line"> = {
 
           if (annotation.dash) {
             ctx.setLineDash([]);
+          }
+          break;
+        }
+
+        case "point": {
+          // Draw point
+          const xPos = xScale.getPixelForValue(annotation.x);
+          const yPos = yScale.getPixelForValue(annotation.y);
+          const radius = annotation.radius || 4;
+
+          ctx.fillStyle = annotation.color || "red";
+          ctx.beginPath();
+          ctx.arc(xPos, yPos, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Draw label if provided
+          if (annotation.label) {
+            ctx.fillStyle = "black";
+            ctx.font = "12px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.fillText(annotation.label, xPos, yPos - radius - 2);
           }
           break;
         }
@@ -415,11 +447,31 @@ class ConfigBuilder {
         const il = position.impermanent_loss(prices) as number[];
 
         // Add impermanent loss line series
+        const color = chartColors[series.length % chartColors.length];
         series.push({
           name: position.label,
           y: il,
-          color: chartColors[series.length % chartColors.length],
+          color: color,
           dash: [5, 5],
+        });
+
+        // Add edge points
+        const edgeIL = position.ilInToken1OnEdges;
+        annotations.push({
+          type: "point",
+          x: position.p_l,
+          y: edgeIL[0],
+          color: color,
+          radius: 6,
+          label: `IL: ${edgeIL[0].toFixed(2)}`,
+        });
+        annotations.push({
+          type: "point",
+          x: position.p_u,
+          y: edgeIL[1],
+          color: color,
+          radius: 6,
+          label: `IL: ${edgeIL[1].toFixed(2)}`,
         });
 
         // Calculate and add collected fees
