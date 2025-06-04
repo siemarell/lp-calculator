@@ -224,6 +224,24 @@ class ConfigBuilder {
 
     for (const position of this.strategy.positions) {
       if (position instanceof UniswapV3Position) {
+        series.push({
+          type: "rect",
+          x0: position.p_l,
+          x1: position.p_u,
+          y0: -Infinity,
+          y1: Infinity,
+          fillcolor: "green",
+          opacity: 0.1,
+          name: `Range ${position.p_l} - ${position.p_u}`,
+        });
+
+        series.push({
+          x: [position.initialPriceInToken1, position.initialPriceInToken1],
+          y: [-Infinity, Infinity],
+          line: { color: "red", dash: "dot" },
+          name: "Current Price",
+        });
+
         // Calculate impermanent loss
         const il = position.impermanent_loss(prices) as number[];
 
