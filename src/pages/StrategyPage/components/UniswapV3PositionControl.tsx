@@ -129,6 +129,19 @@ export const UniswapV3PositionControl = observer(
             />
           </Grid>
           <Grid item xs={12} sm={4}>
+            <Box>
+              <Typography variant="body2" color="text.secondary" mb={1}>
+                Custom Distribution:
+              </Typography>
+              <Typography variant="body2" color={props.position.isCustomTokenDistribution ? "text.primary" : "text.disabled"}>
+                Token0: {((props.position.initialPositionValueInToken1 * props.position.t0Part) / props.position.initialPriceInToken1).toFixed(4)} ({props.position.t0Part * 100}%)
+              </Typography>
+              <Typography variant="body2" color={props.position.isCustomTokenDistribution ? "text.primary" : "text.disabled"}>
+                Token1: {(props.position.initialPositionValueInToken1 * (1 - props.position.t0Part)).toFixed(4)} ({(1 - props.position.t0Part) * 100}%)
+              </Typography>
+            </Box>
+          </Grid>
+          <Grid item xs={12} sm={4}>
             <TextField
               label="APR %"
               type="number"

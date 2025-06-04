@@ -16,6 +16,7 @@ import {
 import { Strategy } from "../strategy/strategy";
 import { observer } from "mobx-react-lite";
 import { UniswapV3Position } from "src/strategy/uniswap_v3";
+import { Typography } from "@mui/material";
 
 // Type definitions for annotations
 interface RectangleAnnotation {
@@ -72,6 +73,7 @@ interface SeriesData {
 interface ChartDataResult {
   series: SeriesData[];
   annotations: Annotation[];
+  total_fees: number;
 }
 
 Chart.register(
@@ -183,7 +185,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const configBuilder = new ConfigBuilder(props.strategy);
-  const { series, annotations } = configBuilder.getChartData();
+  const { series, annotations, total_fees } = configBuilder.getChartData();
   const name = props.strategy.name;
   const prices = props.strategy.prices;
 
@@ -345,8 +347,13 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   }, [name, prices, series, annotations]);
 
   return (
-    <div className={cn("h-[400px]", props.className)}>
-      <canvas ref={chartRef}></canvas>
+    <div className="relative h-[400px]">
+      <canvas ref={chartRef} className="h-full" />
+      <div className="absolute bottom-0 left-0 right-0 text-center bg-white py-2">
+        <Typography variant="h6">
+          Total Collected Fees: {total_fees.toFixed(2)} USDC
+        </Typography>
+      </div>
     </div>
   );
 });
@@ -372,7 +379,7 @@ class ConfigBuilder {
 
     // Initialize total payoff array with zeros
     const total_payoff = new Array(prices.length).fill(0);
-    let static_payoff = 0;
+    let total_fees = 0;
 
     // Data for the plot
     const series: SeriesData[] = [];
@@ -418,19 +425,9 @@ class ConfigBuilder {
           this.strategy.daysInPosition,
         );
         if (collected_fees) {
-          // Add horizontal line annotation for collected fees
-          annotations.push({
-            type: "horizontalLine",
-            y: collected_fees,
-            color: "blue",
-            lineWidth: 2,
-            dash: [10, 5],
-          });
-
-          static_payoff += collected_fees;
+          total_fees += collected_fees;
           // Add collected fees to total payoff
           for (let i = 0; i < total_payoff.length; i++) {
-            total_payoff[i] += collected_fees;
             total_payoff[i] += il[i];
           }
         }
@@ -443,8 +440,6 @@ class ConfigBuilder {
           total_payoff[i] += position_values[i];
         }
 
-        static_payoff -= position.total_premium;
-
         // Add option position line series
         series.push({
           name: position.label,
@@ -455,15 +450,6 @@ class ConfigBuilder {
       }
     }
 
-    // Add horizontal line annotation for fees - premium
-    annotations.push({
-      type: "horizontalLine",
-      y: static_payoff,
-      color: "green",
-      lineWidth: 2,
-      dash: [10, 5],
-    });
-
     // Add total strategy line series
     series.push({
       name: "Total Strategy",
@@ -472,6 +458,6 @@ class ConfigBuilder {
       width: 3,
     });
 
-    return { series, annotations };
+    return { series, annotations, total_fees };
   }
 }
