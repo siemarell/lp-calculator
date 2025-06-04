@@ -39,6 +39,10 @@ export class Strategy {
     this.prices = linSpace(this.minPrice, this.maxPrice, 100);
   }
 
+  removePosition(positionId: string) {
+    this.positions = this.positions.filter(p => p.id !== positionId);
+  }
+
   toJson() {
     return {
       name: this.name,

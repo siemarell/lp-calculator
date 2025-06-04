@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 
 export const UniswapV3PositionControl = observer(
-  (props: { position: UniswapV3Position; className?: string }) => {
+  (props: { position: UniswapV3Position; className?: string; onRemove: () => void }) => {
     return (
       <Block className={cn(
         "flex flex-col gap-4",
@@ -61,12 +61,20 @@ export const UniswapV3PositionControl = observer(
             }}
           />
           <div className="flex-grow" />
-          <Switch
-            checked={props.position.enabled}
-            onChange={(e) => {
-              props.position.enabled = e.target.checked;
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={props.position.enabled}
+              onChange={(e) => {
+                props.position.enabled = e.target.checked;
+              }}
+            />
+            <button
+              onClick={props.onRemove}
+              className="px-2 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600"
+            >
+              Remove
+            </button>
+          </div>
         </div>
         <Grid container spacing={2}>
           <Grid item xs={12}>

@@ -17,11 +17,29 @@ export const StrategyControls = observer(
         {props.strategy.positions.map((p) => {
           switch (p.type) {
             case "option":
-              return <OptionPositionControl key={p.id} option={p} />;
+              return (
+                <OptionPositionControl 
+                  key={p.id} 
+                  option={p} 
+                  onRemove={() => props.strategy.removePosition(p.id)} 
+                />
+              );
             case "uniswap_v3":
-              return <UniswapV3PositionControl key={p.id} position={p} />;
+              return (
+                <UniswapV3PositionControl 
+                  key={p.id} 
+                  position={p} 
+                  onRemove={() => props.strategy.removePosition(p.id)} 
+                />
+              );
             case "future":
-              return <FuturePositionControl key={p.id} position={p} />;
+              return (
+                <FuturePositionControl 
+                  key={p.id} 
+                  position={p} 
+                  onRemove={() => props.strategy.removePosition(p.id)} 
+                />
+              );
             default:
               assertNever(p);
           }

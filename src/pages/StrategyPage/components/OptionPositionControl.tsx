@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 
 export const OptionPositionControl = observer(
-  (props: { option: OptionPosition; className?: string }) => {
+  (props: { option: OptionPosition; className?: string; onRemove: () => void }) => {
     return (
       <Block className={cn(
         "flex flex-col gap-4",
@@ -52,12 +52,20 @@ export const OptionPositionControl = observer(
             </Select>
           </FormControl>
           <div className="flex-grow" />
-          <Switch
-            checked={props.option.enabled}
-            onChange={(e) => {
-              props.option.enabled = e.target.checked;
-            }}
-          />
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={props.option.enabled}
+              onChange={(e) => {
+                props.option.enabled = e.target.checked;
+              }}
+            />
+            <button
+              onClick={props.onRemove}
+              className="px-2 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600"
+            >
+              Remove
+            </button>
+          </div>
         </div>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
