@@ -15,6 +15,9 @@ import {
 } from "chart.js";
 import { Strategy } from "../strategy/strategy";
 import { observer } from "mobx-react-lite";
+import { computed } from "mobx";
+import { UniswapV3Position } from "src/strategy/uniswap_v3";
+
 Chart.register(
   CategoryScale,
   LinearScale,
@@ -35,7 +38,8 @@ interface StrategyChartProps {
 export const StrategyChart = observer((props: StrategyChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
-  const series = props.strategy.series;
+  const configBuilder = new ConfigBuilder(props.strategy);
+  const series = configBuilder.series;
   const name = props.strategy.name;
   const prices = props.strategy.prices;
 
@@ -117,6 +121,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
           maintainAspectRatio: false,
           scales: {
             x: {
+              type: "linear",
               title: {
                 display: true,
                 text: "Price",
@@ -125,13 +130,9 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
                   weight: "bold",
                 },
               },
-              // ticks: {
-              //   callback: function (value, index, values) {
-              //     return "$" + value;
-              //   },
-              // },
             },
             y: {
+              type: "linear",
               title: {
                 display: true,
                 text: "Profit",
@@ -207,3 +208,89 @@ const chartColors = [
   "#EC4899", // Pink
   "#6B7280", // Cool Gray
 ];
+class ConfigBuilder {
+  constructor(private strategy: Strategy) {}
+
+  @computed
+  get series() {
+    const prices = this.strategy.prices;
+
+    // Initialize total payoff array with zeros
+    const total_payoff = new Array(prices.length).fill(0);
+    let static_payoff = 0;
+
+    // Data for the plot
+    const series = [];
+
+    for (const position of this.strategy.positions) {
+      if (position instanceof UniswapV3Position) {
+        // Calculate impermanent loss
+        const il = position.impermanent_loss(prices) as number[];
+
+        // Add impermanent loss line
+        series.push({
+          x: prices,
+          y: il,
+          line: { dash: "dash" },
+          name: position.label,
+        });
+
+        // Calculate and add collected fees
+        const collected_fees = position.getFeesInToken1(
+          this.strategy.daysInPosition,
+        );
+        if (collected_fees) {
+          series.push({
+            x: [prices[0], prices[prices.length - 1]],
+            y: [collected_fees, collected_fees],
+            line: { color: "blue", dash: "dot" },
+            name: `Collected Fees: $${collected_fees.toFixed(2)}`,
+          });
+
+          static_payoff += collected_fees;
+          // Add collected fees to total payoff
+          for (let i = 0; i < total_payoff.length; i++) {
+            total_payoff[i] += collected_fees;
+            total_payoff[i] += il[i];
+          }
+        }
+      } else {
+        // Handle OptionPosition
+        const position_values = position.payoff(prices) as number[];
+
+        // Add position values to total payoff
+        for (let i = 0; i < total_payoff.length; i++) {
+          total_payoff[i] += position_values[i];
+        }
+
+        static_payoff -= position.total_premium;
+
+        // Add option position line
+        series.push({
+          x: prices,
+          y: position_values,
+          line: { dash: "dash" },
+          name: position.label,
+        });
+      }
+    }
+
+    // Add static payoff line
+    series.push({
+      x: [prices[0], prices[prices.length - 1]],
+      y: [static_payoff, static_payoff],
+      line: { color: "green", dash: "dot" },
+      name: `Fees - Premium: ${static_payoff.toFixed(2)}`,
+    });
+
+    // Add total strategy line
+    series.push({
+      x: prices,
+      y: total_payoff,
+      line: { color: "black", width: 2 },
+      name: "Total Strategy",
+    });
+
+    return series;
+  }
+}
