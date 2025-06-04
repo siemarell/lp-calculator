@@ -43,6 +43,6 @@ export const usdc_eth_unichain_my_may24_strategy = new Strategy({
     }),
   ],
   minPrice: 1500,
-  maxPrice: 4500,
+  maxPrice: 4000,
   daysInPosition: 30,
 });

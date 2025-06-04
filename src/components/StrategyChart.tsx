@@ -200,7 +200,8 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
       borderColor: s.color || chartColors[index % chartColors.length],
       borderWidth: s.width || 2,
       borderDash: s.dash || [],
-      pointRadius: 1.5,
+      backgroundColor: "transparent",
+      pointRadius: 1,
     }));
 
     if (!chartInstance.current) {
@@ -289,7 +290,12 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
               },
               ticks: {
                 callback: function (value, index, values) {
-                  return "$" + value;
+                  return new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(+value);
                 },
               },
             },
