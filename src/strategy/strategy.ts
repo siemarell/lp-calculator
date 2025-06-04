@@ -15,6 +15,9 @@ export class Strategy {
   @observable accessor positions: Array<UniswapV3Position | OptionPosition>;
   @observable accessor prices: number[] = [];
   @observable accessor daysInPosition: number;
+  @observable accessor minPrice: number;
+  @observable accessor maxPrice: number;
+
   constructor({
     name,
     positions,
@@ -24,8 +27,14 @@ export class Strategy {
   }: StrategyDTO) {
     this.name = name;
     this.positions = positions;
+    this.minPrice = minPrice;
+    this.maxPrice = maxPrice;
     this.prices = linSpace(minPrice, maxPrice, 100);
     this.daysInPosition = daysInPosition;
+  }
+
+  updatePrices() {
+    this.prices = linSpace(this.minPrice, this.maxPrice, 100);
   }
 }
 

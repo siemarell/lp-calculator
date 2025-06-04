@@ -5,11 +5,13 @@ import { H3 } from "src/components/H3";
 import { assertNever } from "src/utils/assertNever";
 import { OptionPositionControl } from "./OptionPositionControl";
 import { UniswapV3PositionControl } from "./UniswapV3PositionControl";
+import { StrategySettingsControl } from "./StrategySettingsControl";
 
 export const StrategyControls = observer(
   (props: { strategy: Strategy; className?: string }) => {
     return (
       <div className={cn("flex flex-col gap-4", props.className)}>
+        <StrategySettingsControl strategy={props.strategy} />
         <H3>Positions</H3>
         {props.strategy.positions.map((p) => {
           switch (p.type) {

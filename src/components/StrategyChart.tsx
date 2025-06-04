@@ -269,6 +269,11 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
           scales: {
             x: {
               type: "linear",
+              ticks: {
+                stepSize: Math.round(
+                  (prices[prices.length - 1] - prices[0]) / 10,
+                ),
+              },
               title: {
                 display: true,
                 text: "Price",
