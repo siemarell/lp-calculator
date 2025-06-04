@@ -81,11 +81,11 @@ export class OptionPosition {
         quantity: this.quantity,
         strike_price: this.strike_price,
         premium_per_item: this.premium_per_item,
-      }
+      },
     };
   }
 
-  static fromJson(data: { type: string; data: any }): OptionPosition {
+  static fromJson(data: ReturnType<OptionPosition["toJson"]>): OptionPosition {
     if (data.type !== "option") {
       throw new Error("Invalid position type");
     }

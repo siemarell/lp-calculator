@@ -1,60 +1,85 @@
+import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { FuturePosition, FutureType } from "src/strategy/futures";
-import { H4 } from "src/components/H4";
-import { Button } from "src/components/Button";
+import { Block } from "src/components/Block";
+import {
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  TextField,
+  Grid,
+  Typography,
+  Switch,
+  InputAdornment,
+} from "@mui/material";
 
-interface FuturePositionControlProps {
-  position: FuturePosition;
-}
-
-export const FuturePositionControl = observer(({ position }: FuturePositionControlProps) => {
-  return (
-    <div className="flex flex-col gap-2 p-4 border rounded">
-      <div className="flex items-center justify-between">
-        <H4>Future Position</H4>
-        <Button
-          onClick={() => position.enabled = !position.enabled}
-          className={position.enabled ? "bg-green-500" : "bg-red-500"}
-        >
-          {position.enabled ? "Enabled" : "Disabled"}
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Type</label>
-          <select
-            value={position.futureType}
-            onChange={(e) => position.futureType = e.target.value as FutureType}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value={FutureType.LONG}>Long</option>
-            <option value={FutureType.SHORT}>Short</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Amount</label>
-          <input
-            type="number"
-            value={position.amount}
-            onChange={(e) => position.amount = Number(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+export const FuturePositionControl = observer(
+  (props: { position: FuturePosition; className?: string }) => {
+    return (
+      <Block className={cn(
+        "flex flex-col gap-4",
+        props.className,
+        !props.position.enabled && "opacity-50"
+      )}>
+        <div className="flex items-center gap-4">
+          <Typography variant="h6">Future</Typography>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel id="future-type-label">Type</InputLabel>
+            <Select
+              labelId="future-type-label"
+              value={props.position.futureType}
+              label="Type"
+              onChange={(e) => {
+                props.position.futureType = e.target.value as FutureType;
+              }}
+            >
+              <MenuItem value={FutureType.LONG}>Long</MenuItem>
+              <MenuItem value={FutureType.SHORT}>Short</MenuItem>
+            </Select>
+          </FormControl>
+          <div className="flex-grow" />
+          <Switch
+            checked={props.position.enabled}
+            onChange={(e) => {
+              props.position.enabled = e.target.checked;
+            }}
           />
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Margin (%)</label>
-          <input
-            type="number"
-            min="0"
-            max="100"
-            value={position.margin}
-            onChange={(e) => position.margin = Number(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}); 
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Amount"
+              type="number"
+              InputProps={{
+                inputProps: { step: 0.1 }
+              }}
+              size="small"
+              fullWidth
+              value={props.position.amount}
+              onChange={(e) => {
+                props.position.amount = Number(e.target.value);
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="Margin"
+              type="number"
+              InputProps={{
+                inputProps: { step: 1, min: 0, max: 100 },
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+              size="small"
+              fullWidth
+              value={props.position.margin}
+              onChange={(e) => {
+                props.position.margin = Number(e.target.value);
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Block>
+    );
+  },
+); 

@@ -1,18 +1,20 @@
 import { OptionPosition, OptionType, PositionType } from "./options";
 import { UniswapV3Position } from "./uniswap_v3";
+import { FuturePosition } from "./futures";
 import { linSpace } from "../utils/linespace";
 import { observable } from "mobx";
 
 interface StrategyDTO {
   name: string;
-  positions: Array<UniswapV3Position | OptionPosition>;
+  positions: Array<UniswapV3Position | OptionPosition | FuturePosition>;
   minPrice: number;
   maxPrice: number;
   daysInPosition: number;
 }
+
 export class Strategy {
   @observable accessor name: string;
-  @observable accessor positions: Array<UniswapV3Position | OptionPosition>;
+  @observable accessor positions: Array<UniswapV3Position | OptionPosition | FuturePosition>;
   @observable accessor prices: number[] = [];
   @observable accessor daysInPosition: number;
   @observable accessor minPrice: number;
@@ -54,6 +56,8 @@ export class Strategy {
         return OptionPosition.fromJson(p);
       } else if (p.type === "uniswap_v3") {
         return UniswapV3Position.fromJson(p);
+      } else if (p.type === "future") {
+        return FuturePosition.fromJson(p);
       } else {
         throw new Error(`Unknown position type: ${p.type}`);
       }

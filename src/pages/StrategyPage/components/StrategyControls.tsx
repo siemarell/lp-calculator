@@ -5,6 +5,7 @@ import { H3 } from "src/components/H3";
 import { assertNever } from "src/utils/assertNever";
 import { OptionPositionControl } from "./OptionPositionControl";
 import { UniswapV3PositionControl } from "./UniswapV3PositionControl";
+import { FuturePositionControl } from "./FuturePositionControl";
 import { StrategySettingsControl } from "./StrategySettingsControl";
 
 export const StrategyControls = observer(
@@ -19,6 +20,8 @@ export const StrategyControls = observer(
               return <OptionPositionControl key={p.id} option={p} />;
             case "uniswap_v3":
               return <UniswapV3PositionControl key={p.id} position={p} />;
+            case "future":
+              return <FuturePositionControl key={p.id} position={p} />;
             default:
               assertNever(p);
           }

@@ -233,11 +233,13 @@ export class UniswapV3Position {
         initialPositionValueInToken1: this.initialPositionValueInToken1,
         t0Part: this.t0Part,
         apr: this.apr,
-      }
+      },
     };
   }
 
-  static fromJson(data: { type: string; data: any }): UniswapV3Position {
+  static fromJson(
+    data: ReturnType<UniswapV3Position["toJson"]>,
+  ): UniswapV3Position {
     if (data.type !== "uniswap_v3") {
       throw new Error("Invalid position type");
     }

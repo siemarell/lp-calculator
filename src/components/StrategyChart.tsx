@@ -16,6 +16,7 @@ import {
 import { Strategy } from "../strategy/strategy";
 import { observer } from "mobx-react-lite";
 import { UniswapV3Position } from "src/strategy/uniswap_v3";
+import { FuturePosition } from "src/strategy/futures";
 import { Typography } from "@mui/material";
 
 // Type definitions for annotations
@@ -431,6 +432,22 @@ class ConfigBuilder {
             total_payoff[i] += il[i];
           }
         }
+      } else if (position instanceof FuturePosition) {
+        // Handle FuturePosition
+        const position_values = position.payoff(prices) as number[];
+
+        // Add position values to total payoff
+        for (let i = 0; i < total_payoff.length; i++) {
+          total_payoff[i] += position_values[i];
+        }
+
+        // Add future position line series
+        series.push({
+          name: position.label,
+          y: position_values,
+          color: chartColors[series.length % chartColors.length],
+          dash: [5, 5],
+        });
       } else {
         // Handle OptionPosition
         const position_values = position.payoff(prices) as number[];

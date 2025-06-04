@@ -17,11 +17,7 @@ export class FuturePosition {
   @observable accessor margin: number;
   @observable accessor enabled: boolean = true;
 
-  constructor(
-    futureType: FutureType,
-    amount: number,
-    margin: number,
-  ) {
+  constructor(futureType: FutureType, amount: number, margin: number) {
     this.id = `future-${id++}`;
     this.futureType = futureType;
     this.amount = amount;
@@ -34,7 +30,7 @@ export class FuturePosition {
 
   payoff(price: number | number[]): number | number[] {
     if (!this.enabled) return Array.isArray(price) ? price.map(() => 0) : 0;
-    
+
     if (Array.isArray(price)) {
       return price.map((p) => this.payoff(p) as number);
     }
@@ -50,11 +46,11 @@ export class FuturePosition {
         futureType: this.futureType,
         amount: this.amount,
         margin: this.margin,
-      }
+      },
     };
   }
 
-  static fromJson(data: { type: string; data: any }): FuturePosition {
+  static fromJson(data: ReturnType<FuturePosition["toJson"]>): FuturePosition {
     if (data.type !== "future") {
       throw new Error("Invalid position type");
     }
@@ -64,4 +60,4 @@ export class FuturePosition {
       data.data.margin,
     );
   }
-} 
+}
