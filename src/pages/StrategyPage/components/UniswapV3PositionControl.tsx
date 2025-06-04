@@ -16,7 +16,7 @@ export const UniswapV3PositionControl = observer(
   (props: { position: UniswapV3Position; className?: string }) => {
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <Typography variant="h6">Uniswap v3</Typography>
           <FormControlLabel
             control={
@@ -94,54 +94,6 @@ export const UniswapV3PositionControl = observer(
             />
           </Grid>
           <Grid item xs={12} sm={4}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={props.position.isCustomTokenDistribution}
-                  onChange={(e) => {
-                    props.position.isCustomTokenDistribution = e.target.checked;
-                  }}
-                />
-              }
-              label="Custom Token Distribution"
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <TextField
-              label="Token0 Part"
-              type="number"
-              InputProps={{
-                inputProps: {
-                  step: 0.05,
-                  min: 0,
-                  max: 1,
-                },
-              }}
-              size="small"
-              fullWidth
-              disabled={!props.position.isCustomTokenDistribution}
-              value={props.position.t0Part}
-              onChange={(e) => {
-                props.position.setCustomTokenDistribution(
-                  Number(e.target.value),
-                );
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box>
-              <Typography variant="body2" color="text.secondary" mb={1}>
-                Custom Distribution:
-              </Typography>
-              <Typography variant="body2" color={props.position.isCustomTokenDistribution ? "text.primary" : "text.disabled"}>
-                Token0: {((props.position.initialPositionValueInToken1 * props.position.t0Part) / props.position.initialPriceInToken1).toFixed(4)} ({props.position.t0Part * 100}%)
-              </Typography>
-              <Typography variant="body2" color={props.position.isCustomTokenDistribution ? "text.primary" : "text.disabled"}>
-                Token1: {(props.position.initialPositionValueInToken1 * (1 - props.position.t0Part)).toFixed(4)} ({(1 - props.position.t0Part) * 100}%)
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
             <TextField
               label="APR %"
               type="number"
@@ -158,17 +110,99 @@ export const UniswapV3PositionControl = observer(
             />
           </Grid>
         </Grid>
+        <Box mt={2}>
+          <Grid container gap={2}>
+            <Grid item xs={12} sm={12}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={props.position.isCustomTokenDistribution}
+                    onChange={(e) => {
+                      props.position.isCustomTokenDistribution =
+                        e.target.checked;
+                    }}
+                  />
+                }
+                label="Custom Token Distribution"
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Token0 Part"
+                type="number"
+                InputProps={{
+                  inputProps: {
+                    step: 0.05,
+                    min: 0,
+                    max: 1,
+                  },
+                }}
+                size="small"
+                fullWidth
+                disabled={!props.position.isCustomTokenDistribution}
+                value={props.position.t0Part}
+                onChange={(e) => {
+                  props.position.setCustomTokenDistribution(
+                    Number(e.target.value),
+                  );
+                }}
+              />
+            </Grid>
+            <Grid item>
+              <Box>
+                <Typography
+                  variant="body2"
+                  color={
+                    props.position.isCustomTokenDistribution
+                      ? "text.primary"
+                      : "text.disabled"
+                  }
+                >
+                  Token0:{" "}
+                  {(
+                    (props.position.initialPositionValueInToken1 *
+                      props.position.t0Part) /
+                    props.position.initialPriceInToken1
+                  ).toFixed(4)}{" "}
+                  ({props.position.t0Part * 100}%)
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color={
+                    props.position.isCustomTokenDistribution
+                      ? "text.primary"
+                      : "text.disabled"
+                  }
+                >
+                  Token1:{" "}
+                  {(
+                    props.position.initialPositionValueInToken1 *
+                    (1 - props.position.t0Part)
+                  ).toFixed(4)}{" "}
+                  ({(1 - props.position.t0Part) * 100}%)
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
 
         <Box mt={2}>
-          <Typography variant="subtitle1" mb={0.5}>Initial Token Amounts:</Typography>
+          <Typography variant="subtitle1" mb={0.5}>
+            Initial Token Amounts:
+          </Typography>
           <Grid container spacing={2}>
             <Grid item xs={6}>
               <Typography variant="body1" fontWeight="medium">
                 Token0: {props.position.initialTokenAmounts[0].toFixed(4)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {((props.position.initialTokenAmounts[0] * props.position.initialPriceInToken1) / 
-                  props.position.initialPositionValueInToken1 * 100).toFixed(2)}%
+                {(
+                  ((props.position.initialTokenAmounts[0] *
+                    props.position.initialPriceInToken1) /
+                    props.position.initialPositionValueInToken1) *
+                  100
+                ).toFixed(2)}
+                %
               </Typography>
             </Grid>
             <Grid item xs={6}>
@@ -176,8 +210,12 @@ export const UniswapV3PositionControl = observer(
                 Token1: {props.position.initialTokenAmounts[1].toFixed(4)}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {(props.position.initialTokenAmounts[1] / 
-                  props.position.initialPositionValueInToken1 * 100).toFixed(2)}%
+                {(
+                  (props.position.initialTokenAmounts[1] /
+                    props.position.initialPositionValueInToken1) *
+                  100
+                ).toFixed(2)}
+                %
               </Typography>
             </Grid>
           </Grid>
