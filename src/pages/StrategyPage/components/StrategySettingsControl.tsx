@@ -3,9 +3,19 @@ import { observer } from "mobx-react-lite";
 import { Strategy } from "src/strategy/strategy";
 import { Block } from "src/components/Block";
 import { TextField, InputAdornment, Typography, Grid } from "@mui/material";
+import { computed } from "mobx";
+import React from "react";
 
 export const StrategySettingsControl = observer(
   (props: { strategy: Strategy; className?: string }) => {
+    const [priceRangePercent, setPriceRangePercent] = React.useState(70);
+
+    const updatePriceRange = (currentPrice: number) => {
+      const range = currentPrice * (priceRangePercent / 100);
+      props.strategy.minPrice = currentPrice - range;
+      props.strategy.maxPrice = currentPrice + range;
+    };
+
     return (
       <Block className={cn("flex flex-col gap-4", props.className)}>
         <Typography variant="h6">Strategy Settings</Typography>
@@ -30,31 +40,40 @@ export const StrategySettingsControl = observer(
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField
-              label="Chart Min Price"
+              label="Current Market Price"
               type="number"
               InputProps={{
                 inputProps: { step: 100 },
               }}
               size="small"
               fullWidth
-              value={props.strategy.minPrice || ''}
+              value={props.strategy.minPrice ? (props.strategy.minPrice + props.strategy.maxPrice) / 2 : ''}
               onChange={(e) => {
-                props.strategy.minPrice = Number(e.target.value);
+                const currentPrice = Number(e.target.value);
+                updatePriceRange(currentPrice);
               }}
             />
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField
-              label="Chart Max Price"
+              label="Price Range"
               type="number"
               InputProps={{
-                inputProps: { step: 100 },
+                inputProps: { step: 5, min: 1, max: 100 },
+                endAdornment: (
+                  <InputAdornment position="end">%</InputAdornment>
+                ),
               }}
               size="small"
               fullWidth
-              value={props.strategy.maxPrice || ''}
+              value={priceRangePercent}
               onChange={(e) => {
-                props.strategy.maxPrice = Number(e.target.value);
+                const newRange = Number(e.target.value);
+                setPriceRangePercent(newRange);
+                if (props.strategy.minPrice && props.strategy.maxPrice) {
+                  const currentPrice = (props.strategy.minPrice + props.strategy.maxPrice) / 2;
+                  updatePriceRange(currentPrice);
+                }
               }}
             />
           </Grid>
