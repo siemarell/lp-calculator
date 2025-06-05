@@ -20,6 +20,7 @@ import { FuturePosition } from "src/strategy/futures";
 import { Typography } from "@mui/material";
 import { OptionPosition } from "src/strategy/options";
 import { assertNever } from "src/utils/assertNever";
+import { getDecimalPlaces } from "src/utils/linespace";
 
 // Type definitions for annotations
 interface RectangleAnnotation {
@@ -216,6 +217,19 @@ const annotationPlugin: Plugin<"line"> = {
   },
 };
 
+const chartColors = [
+  "#3B82F6", // Bright Blue
+  "#EF4444", // Vibrant Red
+  "#10B981", // Emerald Green
+  "#F59E0B", // Amber Orange
+  "#8B5CF6", // Purple
+  "#06B6D4", // Cyan
+  "#F97316", // Orange
+  "#84CC16", // Lime Green
+  "#EC4899", // Pink
+  "#6B7280", // Cool Gray
+];
+
 export const StrategyChart = observer((props: StrategyChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
@@ -223,6 +237,10 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   const { series, annotations, total_fees } = configBuilder.getChartData();
   const name = props.strategy.name;
   const prices = props.strategy.prices;
+  const decimalPlaces = getDecimalPlaces(
+    props.strategy.minPrice,
+    props.strategy.maxPrice,
+  );
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -314,11 +332,11 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
           scales: {
             x: {
               type: "linear",
-              // ticks: {
-              //   // stepSize: Math.round(
-              //   //   (prices[prices.length - 1] - prices[0]) / 10,
-              //   // ),
-              // },
+              ticks: {
+                callback: function (value) {
+                  return Number(value).toFixed(decimalPlaces);
+                },
+              },
               title: {
                 display: true,
                 text: "Price",
@@ -399,19 +417,6 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
     </div>
   );
 });
-
-const chartColors = [
-  "#3B82F6", // Bright Blue
-  "#EF4444", // Vibrant Red
-  "#10B981", // Emerald Green
-  "#F59E0B", // Amber Orange
-  "#8B5CF6", // Purple
-  "#06B6D4", // Cyan
-  "#F97316", // Orange
-  "#84CC16", // Lime Green
-  "#EC4899", // Pink
-  "#6B7280", // Cool Gray
-];
 
 class ConfigBuilder {
   constructor(private strategy: Strategy) {}
@@ -511,7 +516,10 @@ class ConfigBuilder {
         });
       } else if (position instanceof OptionPosition) {
         // Handle OptionPosition
-        const position_values = position.payoff(prices, this.strategy.daysInPosition);
+        const position_values = position.payoff(
+          prices,
+          this.strategy.daysInPosition,
+        );
 
         // Add position values to total payoff
         for (let i = 0; i < total_payoff.length; i++) {
