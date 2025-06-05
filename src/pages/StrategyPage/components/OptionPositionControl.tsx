@@ -2,25 +2,31 @@ import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { OptionPosition, OptionType, PositionType } from "src/strategy/options";
 import { Block } from "src/components/Block";
-import { 
+import {
   Select,
   MenuItem,
-  FormControl, 
+  FormControl,
   InputLabel,
-  TextField, 
+  TextField,
   Grid,
   Typography,
-  Switch
+  Switch,
 } from "@mui/material";
 
 export const OptionPositionControl = observer(
-  (props: { option: OptionPosition; className?: string; onRemove: () => void }) => {
+  (props: {
+    option: OptionPosition;
+    className?: string;
+    onRemove: () => void;
+  }) => {
     return (
-      <Block className={cn(
-        "flex flex-col gap-4",
-        props.className,
-        !props.option.enabled && "opacity-50"
-      )}>
+      <Block
+        className={cn(
+          "flex flex-col gap-4",
+          props.className,
+          !props.option.enabled && "opacity-50",
+        )}
+      >
         <div className="flex items-center gap-4">
           <Typography variant="h6">Option</Typography>
           <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -55,7 +61,7 @@ export const OptionPositionControl = observer(
             label="Spot Price"
             type="number"
             InputProps={{
-              inputProps: { step: 0.5 }
+              inputProps: { step: 0.5 },
             }}
             size="small"
             sx={{ minWidth: 120 }}
@@ -74,7 +80,7 @@ export const OptionPositionControl = observer(
             />
             <button
               onClick={props.onRemove}
-              className="px-2 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600 cursor-pointer"
+              className="cursor-pointer rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600"
             >
               Remove
             </button>
@@ -83,10 +89,10 @@ export const OptionPositionControl = observer(
         <Grid container spacing={2}>
           <Grid item xs={12} sm={3}>
             <TextField
-              label="Price"
+              label="Premium"
               type="number"
               InputProps={{
-                inputProps: { step: 0.5 }
+                inputProps: { step: 0.5 },
               }}
               size="small"
               fullWidth
@@ -101,7 +107,7 @@ export const OptionPositionControl = observer(
               label="Quantity"
               type="number"
               InputProps={{
-                inputProps: { step: 0.5 }
+                inputProps: { step: 0.5 },
               }}
               size="small"
               fullWidth
@@ -116,7 +122,7 @@ export const OptionPositionControl = observer(
               label="Strike"
               type="number"
               InputProps={{
-                inputProps: { step: 0.5 }
+                inputProps: { step: 0.5 },
               }}
               size="small"
               fullWidth
@@ -131,16 +137,19 @@ export const OptionPositionControl = observer(
               label="Expiration (days)"
               type="number"
               InputProps={{
-                inputProps: { 
+                inputProps: {
                   step: 1,
-                  min: 1
-                }
+                  min: 1,
+                },
               }}
               size="small"
               fullWidth
               value={props.option.expirationDays}
               onChange={(e) => {
-                props.option.expirationDays = Math.max(1, Number(e.target.value));
+                props.option.expirationDays = Math.max(
+                  1,
+                  Number(e.target.value),
+                );
               }}
             />
           </Grid>
