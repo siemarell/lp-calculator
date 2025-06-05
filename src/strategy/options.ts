@@ -27,7 +27,7 @@ export class OptionPosition {
   @observable accessor enabled: boolean = true;
 
   // Additional parameters for better pricing
-  @observable accessor currentPrice: number; // Current underlying price when position was created
+  @observable accessor purchaseSpotPrice: number; // Spot price when position was created
   @observable accessor impliedVolatility: number = 0.25; // Default 25% IV
   @observable accessor riskFreeRate: number = 0.05; // Default 5% risk-free rate
 
@@ -37,8 +37,8 @@ export class OptionPosition {
     quantity: number,
     strike_price: number,
     premium_per_item: number,
-    currentPrice: number,
-    expirationDays: number = 30,
+    purchaseSpotPrice: number,
+    expirationDays: number,
     impliedVolatility: number = 0.25,
     riskFreeRate: number = 0.05,
   ) {
@@ -48,7 +48,7 @@ export class OptionPosition {
     this.quantity = quantity;
     this.strike_price = strike_price;
     this.premium_per_item = premium_per_item;
-    this.currentPrice = currentPrice;
+    this.purchaseSpotPrice = purchaseSpotPrice;
     this.expirationDays = expirationDays;
     this.impliedVolatility = impliedVolatility;
     this.riskFreeRate = riskFreeRate;
@@ -170,7 +170,16 @@ export class OptionPosition {
     }
   }
 
-  // Improved payoff calculation
+  // Calculate theoretical premium at purchase to verify pricing
+  get theoreticalPremiumAtPurchase(): number {
+    const purchaseTimeToExpiry = this.expirationDays / 365;
+    return this.calculateBlackScholesPrice(
+      this.purchaseSpotPrice,
+      purchaseTimeToExpiry,
+    );
+  }
+
+  // Improved payoff calculation with proper reference point
   payoff(prices: number[], daysInPosition: number = 0): number[] {
     const daysToExpiry = Math.max(this.expirationDays - daysInPosition, 0);
     const timeToExpiry = daysToExpiry / 365; // Convert to years
@@ -180,38 +189,67 @@ export class OptionPosition {
       const spotPrice = prices[i];
 
       // Calculate current theoretical option price
-      const theoreticalPrice = this.calculateBlackScholesPrice(
-        spotPrice,
-        timeToExpiry,
-      );
+      let currentOptionValue: number;
 
-      // For very short time periods or at expiration, use intrinsic value
-      let optionValue: number;
-      if (timeToExpiry <= 0.001) {
-        // Less than ~4 hours
+      if (timeToExpiry <= 0) {
+        // At expiration, use intrinsic value
         if (this.optionType === OptionType.CALL) {
-          optionValue = Math.max(spotPrice - this.strike_price, 0);
+          currentOptionValue = Math.max(spotPrice - this.strike_price, 0);
         } else {
-          optionValue = Math.max(this.strike_price - spotPrice, 0);
+          currentOptionValue = Math.max(this.strike_price - spotPrice, 0);
         }
       } else {
-        optionValue = theoreticalPrice;
+        // Use Black-Scholes for time value
+        currentOptionValue = this.calculateBlackScholesPrice(
+          spotPrice,
+          timeToExpiry,
+        );
       }
 
-      // Calculate P&L based on position
+      // Calculate P&L based on position type
       let pnl: number;
       if (this.position === PositionType.BUY) {
-        // Long position: current value - premium paid
-        pnl = (optionValue - this.premium_per_item) * this.quantity;
+        // Long position: current option value - premium paid
+        pnl = (currentOptionValue - this.premium_per_item) * this.quantity;
       } else {
-        // Short position: premium received - current value
-        pnl = (this.premium_per_item - optionValue) * this.quantity;
+        // Short position: premium received - current option value
+        pnl = (this.premium_per_item - currentOptionValue) * this.quantity;
       }
 
       result[i] = pnl;
     }
 
     return result;
+  }
+
+  // Calculate P&L at a specific spot price and time
+  calculatePnL(spotPrice: number, daysInPosition: number = 0): number {
+    const daysToExpiry = Math.max(this.expirationDays - daysInPosition, 0);
+    const timeToExpiry = daysToExpiry / 365;
+
+    let currentOptionValue: number;
+
+    if (timeToExpiry <= 0) {
+      // At expiration, use intrinsic value
+      if (this.optionType === OptionType.CALL) {
+        currentOptionValue = Math.max(spotPrice - this.strike_price, 0);
+      } else {
+        currentOptionValue = Math.max(this.strike_price - spotPrice, 0);
+      }
+    } else {
+      // Use Black-Scholes for time value
+      currentOptionValue = this.calculateBlackScholesPrice(
+        spotPrice,
+        timeToExpiry,
+      );
+    }
+
+    // Calculate P&L based on position type
+    if (this.position === PositionType.BUY) {
+      return (currentOptionValue - this.premium_per_item) * this.quantity;
+    } else {
+      return (this.premium_per_item - currentOptionValue) * this.quantity;
+    }
   }
 
   // Get Greeks for analysis
@@ -238,6 +276,27 @@ export class OptionPosition {
     };
   }
 
+  // Helper method to check if pricing is consistent
+  get pricingConsistency(): {
+    theoreticalPremium: number;
+    actualPremium: number;
+    difference: number;
+    percentageDifference: number;
+  } {
+    const theoretical = this.theoreticalPremiumAtPurchase;
+    const actual = this.premium_per_item;
+    const difference = actual - theoretical;
+    const percentageDifference =
+      theoretical !== 0 ? (difference / theoretical) * 100 : 0;
+
+    return {
+      theoreticalPremium: theoretical,
+      actualPremium: actual,
+      difference,
+      percentageDifference,
+    };
+  }
+
   toJson() {
     return {
       type: this.type,
@@ -247,7 +306,7 @@ export class OptionPosition {
         quantity: this.quantity,
         strike_price: this.strike_price,
         premium_per_item: this.premium_per_item,
-        currentPrice: this.currentPrice,
+        purchaseSpotPrice: this.purchaseSpotPrice,
         expirationDays: this.expirationDays,
         impliedVolatility: this.impliedVolatility,
         riskFreeRate: this.riskFreeRate,
@@ -266,7 +325,7 @@ export class OptionPosition {
       data.data.quantity,
       data.data.strike_price,
       data.data.premium_per_item,
-      data.data.currentPrice,
+      data.data.purchaseSpotPrice,
       data.data.expirationDays,
       data.data.impliedVolatility ?? 0.25,
       data.data.riskFreeRate ?? 0.05,

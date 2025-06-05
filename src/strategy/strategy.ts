@@ -53,6 +53,7 @@ export class Strategy {
       PositionType.BUY,
       1.0, // quantity
       this.minPrice + (this.maxPrice - this.minPrice) / 2, // strike at midpoint
+      this.minPrice + (this.maxPrice - this.minPrice) / 2, // spot price at midpoint,
       10.0, // premium
       30, // default expiration days
     );
