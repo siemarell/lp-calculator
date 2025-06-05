@@ -70,6 +70,9 @@ export const OptionPositionControl = observer(
               props.option.purchaseSpotPrice = Number(e.target.value);
             }}
           />
+          <Typography variant="body2" sx={{ minWidth: 100 }}>
+            IV: {(props.option.IV * 100).toFixed(1)}%
+          </Typography>
           <div className="flex-grow" />
           <div className="flex items-center gap-2">
             <Switch
