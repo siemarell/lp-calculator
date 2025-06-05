@@ -21,6 +21,7 @@ export class Strategy extends Disposable {
   @observable accessor daysInPosition: number;
   @observable accessor spotPrice: number;
   @observable accessor priceRangePercent: number = 70;
+  @observable accessor includeFeesInTotal: boolean = false;
   @computed get minPrice() {
     return this.spotPrice - this.spotPrice * (this.priceRangePercent / 100);
   }

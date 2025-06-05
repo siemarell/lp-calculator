@@ -21,6 +21,7 @@ import { Typography } from "@mui/material";
 import { OptionPosition } from "src/strategy/options";
 import { assertNever } from "src/utils/assertNever";
 import { getDecimalPlaces } from "src/utils/linespace";
+import { Switch } from "@mui/material";
 
 // Type definitions for annotations
 interface RectangleAnnotation {
@@ -412,9 +413,21 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
     <div className={cn("relative h-[400px]", props.className)}>
       <canvas ref={chartRef} className="h-full" />
 
-      <Typography className="absolute bottom-[-10px] left-0 py-2" variant="h6">
-        Potential Fees: {total_fees.toFixed(2)}
-      </Typography>
+      <div className="absolute bottom-[-10px] left-0 flex items-center gap-4 py-2">
+        <Typography variant="h6">
+          Potential Fees: {total_fees.toFixed(2)}
+        </Typography>
+        <div className="flex items-center gap-2">
+          <Typography variant="body2">Include in total</Typography>
+          <Switch
+            size="small"
+            checked={props.strategy.includeFeesInTotal}
+            onChange={(e) => {
+              props.strategy.includeFeesInTotal = e.target.checked;
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 });
@@ -496,7 +509,12 @@ class ConfigBuilder {
         );
         if (collected_fees) {
           total_fees += collected_fees;
-          // Add collected fees to total payoff
+          // Add collected fees to total payoff if enabled
+          if (this.strategy.includeFeesInTotal) {
+            for (let i = 0; i < total_payoff.length; i++) {
+              total_payoff[i] += collected_fees;
+            }
+          }
         }
       } else if (position instanceof FuturePosition) {
         // Handle FuturePosition
@@ -537,7 +555,11 @@ class ConfigBuilder {
         assertNever(position);
       }
     }
-
+    if (this.strategy.includeFeesInTotal) {
+      for (let i = 0; i < total_payoff.length; i++) {
+        total_payoff[i] += total_fees;
+      }
+    }
     // Add total strategy line series
     series.push({
       name: "Total Strategy",
