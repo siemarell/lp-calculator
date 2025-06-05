@@ -217,14 +217,14 @@ export class OptionPosition {
   // Get Greeks for analysis
   getGreeks(
     spotPrice: number,
-    daysRemaining?: number,
+    daysInPosition: number = 0,
   ): {
     delta: number;
     theta: number;
     gamma?: number;
     vega?: number;
   } {
-    const daysToExpiry = daysRemaining ?? this.expirationDays;
+    const daysToExpiry = Math.max(this.expirationDays - daysInPosition, 0);
     const timeToExpiry = daysToExpiry / 365;
 
     const delta = this.calculateDelta(spotPrice, timeToExpiry);

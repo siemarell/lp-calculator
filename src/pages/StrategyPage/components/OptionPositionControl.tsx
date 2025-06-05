@@ -61,7 +61,7 @@ export const OptionPositionControl = observer(
             />
             <button
               onClick={props.onRemove}
-              className="px-2 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600"
+              className="px-2 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600 cursor-pointer"
             >
               Remove
             </button>

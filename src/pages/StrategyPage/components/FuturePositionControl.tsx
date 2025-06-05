@@ -54,7 +54,7 @@ export const FuturePositionControl = observer(
             />
             <button
               onClick={props.onRemove}
-              className="rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600"
+              className="rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600 cursor-pointer"
             >
               Remove
             </button>

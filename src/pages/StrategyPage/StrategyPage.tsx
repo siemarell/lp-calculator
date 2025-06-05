@@ -114,14 +114,14 @@ const StrategySaveRestore = observer(
         />
         <button
           onClick={handleSave}
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 cursor-pointer"
         >
           Save
         </button>
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+            className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 cursor-pointer"
           >
             Restore
           </button>
@@ -142,7 +142,7 @@ const StrategySaveRestore = observer(
                         <td className="px-4 py-2">
                           <button
                             onClick={() => handleRestore(s)}
-                            className="text-blue-500 hover:text-blue-700"
+                            className="text-blue-500 hover:text-blue-700 cursor-pointer"
                           >
                             {s.name}
                           </button>
@@ -153,7 +153,7 @@ const StrategySaveRestore = observer(
                         <td className="px-4 py-2 text-right">
                           <button
                             onClick={() => handleDelete(s.name)}
-                            className="text-red-500 hover:text-red-700"
+                            className="text-red-500 hover:text-red-700 cursor-pointer"
                           >
                             Delete
                           </button>

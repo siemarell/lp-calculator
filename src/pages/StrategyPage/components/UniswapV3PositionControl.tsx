@@ -12,13 +12,19 @@ import {
 } from "@mui/material";
 
 export const UniswapV3PositionControl = observer(
-  (props: { position: UniswapV3Position; className?: string; onRemove: () => void }) => {
+  (props: {
+    position: UniswapV3Position;
+    className?: string;
+    onRemove: () => void;
+  }) => {
     return (
-      <Block className={cn(
-        "flex flex-col gap-4",
-        props.className,
-        !props.position.enabled && "opacity-50"
-      )}>
+      <Block
+        className={cn(
+          "flex flex-col gap-4",
+          props.className,
+          !props.position.enabled && "opacity-50",
+        )}
+      >
         <div className="flex items-center gap-4">
           <Typography variant="h6">Uniswap v3</Typography>
           <TextField
@@ -29,7 +35,7 @@ export const UniswapV3PositionControl = observer(
             }}
             size="small"
             sx={{ width: 150 }}
-            value={props.position.p_l || ''}
+            value={props.position.p_l || ""}
             onChange={(e) => {
               props.position.p_l = Number(e.target.value);
             }}
@@ -42,7 +48,7 @@ export const UniswapV3PositionControl = observer(
             }}
             size="small"
             sx={{ width: 150 }}
-            value={props.position.p_u || ''}
+            value={props.position.p_u || ""}
             onChange={(e) => {
               props.position.p_u = Number(e.target.value);
             }}
@@ -55,7 +61,7 @@ export const UniswapV3PositionControl = observer(
             }}
             size="small"
             sx={{ width: 150 }}
-            value={props.position.initialPriceInToken1 || ''}
+            value={props.position.initialPriceInToken1 || ""}
             onChange={(e) => {
               props.position.initialPriceInToken1 = Number(e.target.value);
             }}
@@ -70,7 +76,7 @@ export const UniswapV3PositionControl = observer(
             />
             <button
               onClick={props.onRemove}
-              className="px-2 py-1 text-sm text-white bg-red-500 rounded hover:bg-red-600"
+              className="cursor-pointer rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600"
             >
               Remove
             </button>
@@ -84,11 +90,13 @@ export const UniswapV3PositionControl = observer(
                 type="number"
                 InputProps={{
                   inputProps: { step: 1 },
-                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                  endAdornment: (
+                    <InputAdornment position="end">%</InputAdornment>
+                  ),
                 }}
                 size="small"
                 sx={{ width: 150 }}
-                value={props.position.apr || ''}
+                value={props.position.apr || ""}
                 onChange={(e) => {
                   props.position.apr = Number(e.target.value);
                 }}
@@ -101,7 +109,7 @@ export const UniswapV3PositionControl = observer(
                 }}
                 size="small"
                 sx={{ width: 150 }}
-                value={props.position.initialPositionValueInToken1 || ''}
+                value={props.position.initialPositionValueInToken1 || ""}
                 onChange={(e) => {
                   props.position.initialPositionValueInToken1 = Number(
                     e.target.value,
@@ -110,10 +118,23 @@ export const UniswapV3PositionControl = observer(
               />
               <div className="flex flex-col">
                 <Typography variant="body2">
-                  Token0: {props.position.initialTokenAmounts[0].toFixed(4)} ({((props.position.initialTokenAmounts[0] * props.position.initialPriceInToken1) / props.position.initialPositionValueInToken1 * 100).toFixed(2)}%)
+                  Token0: {props.position.initialTokenAmounts[0].toFixed(4)} (
+                  {(
+                    ((props.position.initialTokenAmounts[0] *
+                      props.position.initialPriceInToken1) /
+                      props.position.initialPositionValueInToken1) *
+                    100
+                  ).toFixed(2)}
+                  %)
                 </Typography>
                 <Typography variant="body2">
-                  Token1: {props.position.initialTokenAmounts[1].toFixed(4)} ({(props.position.initialTokenAmounts[1] / props.position.initialPositionValueInToken1 * 100).toFixed(2)}%)
+                  Token1: {props.position.initialTokenAmounts[1].toFixed(4)} (
+                  {(
+                    (props.position.initialTokenAmounts[1] /
+                      props.position.initialPositionValueInToken1) *
+                    100
+                  ).toFixed(2)}
+                  %)
                 </Typography>
               </div>
             </div>
@@ -123,7 +144,9 @@ export const UniswapV3PositionControl = observer(
           <Grid container gap={2}>
             <Grid item xs={12}>
               <div className="flex items-center gap-4">
-                <Typography variant="subtitle2">Custom Token Distribution</Typography>
+                <Typography variant="subtitle2">
+                  Custom Token Distribution
+                </Typography>
                 <Switch
                   checked={props.position.isCustomTokenDistribution}
                   onChange={(e) => {
@@ -143,7 +166,7 @@ export const UniswapV3PositionControl = observer(
                   size="small"
                   sx={{ width: 150 }}
                   disabled={!props.position.isCustomTokenDistribution}
-                  value={props.position.t0Part || ''}
+                  value={props.position.t0Part}
                   onChange={(e) => {
                     props.position.setCustomTokenDistribution(
                       Number(e.target.value),
@@ -159,7 +182,13 @@ export const UniswapV3PositionControl = observer(
                         : "text.disabled"
                     }
                   >
-                    Token0: {((props.position.initialPositionValueInToken1 * props.position.t0Part) / props.position.initialPriceInToken1).toFixed(4)} ({(props.position.t0Part * 100).toFixed(2)}%)
+                    Token0:{" "}
+                    {(
+                      (props.position.initialPositionValueInToken1 *
+                        props.position.t0Part) /
+                      props.position.initialPriceInToken1
+                    ).toFixed(4)}{" "}
+                    ({(props.position.t0Part * 100).toFixed(2)}%)
                   </Typography>
                   <Typography
                     variant="body2"
@@ -169,7 +198,12 @@ export const UniswapV3PositionControl = observer(
                         : "text.disabled"
                     }
                   >
-                    Token1: {(props.position.initialPositionValueInToken1 * (1 - props.position.t0Part)).toFixed(4)} ({((1 - props.position.t0Part) * 100).toFixed(2)}%)
+                    Token1:{" "}
+                    {(
+                      props.position.initialPositionValueInToken1 *
+                      (1 - props.position.t0Part)
+                    ).toFixed(4)}{" "}
+                    ({((1 - props.position.t0Part) * 100).toFixed(2)}%)
                   </Typography>
                 </div>
               </div>

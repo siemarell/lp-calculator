@@ -280,6 +280,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
             legend: {
               display: true,
               position: "top",
+
               labels: {
                 usePointStyle: true,
                 boxWidth: 10,
