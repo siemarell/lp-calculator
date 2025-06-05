@@ -458,8 +458,10 @@ class ConfigBuilder {
         });
 
         // Calculate impermanent loss
-        const il = position.impermanent_loss(prices) as number[];
-
+        const il = position.impermanent_loss(prices);
+        for (let i = 0; i < total_payoff.length; i++) {
+          total_payoff[i] += il[i];
+        }
         // Add impermanent loss line series
         const color = chartColors[series.length % chartColors.length];
         series.push({
@@ -495,9 +497,6 @@ class ConfigBuilder {
         if (collected_fees) {
           total_fees += collected_fees;
           // Add collected fees to total payoff
-          for (let i = 0; i < total_payoff.length; i++) {
-            total_payoff[i] += il[i];
-          }
         }
       } else if (position instanceof FuturePosition) {
         // Handle FuturePosition

@@ -2,40 +2,70 @@ import { OptionPosition, OptionType, PositionType } from "./options";
 import { UniswapV3Position } from "./uniswap_v3";
 import { FuturePosition, FutureType } from "./futures";
 import { linSpace } from "../utils/linespace";
-import { computed, observable } from "mobx";
+import { autorun, computed, observable, reaction, runInAction } from "mobx";
+import { assertNever } from "src/utils/assertNever";
+import Disposable from "src/utils/Disposable";
 
 interface StrategyDTO {
   name: string;
   positions: Array<UniswapV3Position | OptionPosition | FuturePosition>;
-  minPrice: number;
-  maxPrice: number;
+  spotPrice: number;
   daysInPosition: number;
 }
 
-export class Strategy {
+export class Strategy extends Disposable {
   @observable accessor name: string;
   @observable accessor positions: Array<
     UniswapV3Position | OptionPosition | FuturePosition
   >;
   @observable accessor daysInPosition: number;
-  @observable accessor minPrice: number;
-  @observable accessor maxPrice: number;
+  @observable accessor spotPrice: number;
+  @observable accessor priceRangePercent: number = 70;
+  @computed get minPrice() {
+    return this.spotPrice - this.spotPrice * (this.priceRangePercent / 100);
+  }
+  @computed get maxPrice() {
+    return this.spotPrice + this.spotPrice * (this.priceRangePercent / 100);
+  }
   @observable accessor hiddenSeries: Set<string> = new Set();
 
   constructor({
     name,
     positions,
-    minPrice,
-    maxPrice,
+    spotPrice,
     daysInPosition,
     hiddenSeries = new Set(),
   }: StrategyDTO & { hiddenSeries?: Set<string> }) {
+    super();
     this.name = name;
     this.positions = positions;
-    this.minPrice = minPrice;
-    this.maxPrice = maxPrice;
+    this.spotPrice = spotPrice;
     this.daysInPosition = daysInPosition;
     this.hiddenSeries = hiddenSeries;
+
+    this.addDisposer(
+      reaction(
+        () => this.spotPrice,
+        () => {
+          console.log("spot price changed");
+          this.positions.forEach((p) => {
+            switch (p.type) {
+              case "future":
+                p.entryPrice = this.spotPrice;
+                break;
+              case "option":
+                p.spotPrice = this.spotPrice;
+                break;
+              case "uniswap_v3":
+                p.initialPriceInToken1 = this.spotPrice;
+                break;
+              default:
+                assertNever(p);
+            }
+          });
+        },
+      ),
+    );
   }
 
   @computed
@@ -52,38 +82,41 @@ export class Strategy {
       OptionType.CALL,
       PositionType.BUY,
       1.0, // quantity
-      this.minPrice + (this.maxPrice - this.minPrice) / 2, // strike at midpoint
-      this.minPrice + (this.maxPrice - this.minPrice) / 2, // spot price at midpoint,
+      this.spotPrice * 1.2, // strike at 20% above spot price
       10.0, // premium
+      this.spotPrice,
       30, // default expiration days
     );
-    this.positions.push(newPosition);
+    this.positions = [...this.positions, newPosition];
   }
 
   addUniswapV3Position() {
-    const midPrice = this.minPrice + (this.maxPrice - this.minPrice) / 2;
     const newPosition = new UniswapV3Position({
-      p_l: midPrice * 0.8, // 20% below mid
-      p_u: midPrice * 1.2, // 20% above mid
-      initialPriceInToken1: midPrice,
+      p_l: this.spotPrice * 0.8, // 20% below mid
+      p_u: this.spotPrice * 1.2, // 20% above mid
+      initialPriceInToken1: this.spotPrice,
       initialPositionValueInToken1: 1000,
       t0Part: 0.5,
       apr: 20,
     });
-    this.positions.push(newPosition);
+    this.positions = [...this.positions, newPosition];
   }
 
   addFuturePosition() {
-    const newPosition = new FuturePosition(FutureType.LONG, 1.0, 50, 20); // type LONG, amount 1.0, price 50 20% margin
-    this.positions.push(newPosition);
+    const newPosition = new FuturePosition(
+      FutureType.LONG,
+      1.0,
+      this.spotPrice,
+      20,
+    ); // type LONG, amount 1.0, price 50 20% margin
+    this.positions = [...this.positions, newPosition];
   }
 
   toJson() {
     return {
       name: this.name,
       positions: this.positions.map((p) => p.toJson()),
-      minPrice: this.minPrice,
-      maxPrice: this.maxPrice,
+      spotPrice: this.spotPrice,
       daysInPosition: this.daysInPosition,
       savedAt: new Date().toISOString(),
       hiddenSeries: Array.from(this.hiddenSeries),
@@ -91,7 +124,7 @@ export class Strategy {
   }
 
   static fromJson(data: ReturnType<Strategy["toJson"]>): Strategy {
-    const positions = data.positions.map((p: any) => {
+    const positions = data.positions.map((p) => {
       if (p.type === "option") {
         return OptionPosition.fromJson(p);
       } else if (p.type === "uniswap_v3") {
@@ -99,19 +132,16 @@ export class Strategy {
       } else if (p.type === "future") {
         return FuturePosition.fromJson(p);
       } else {
-        throw new Error(`Unknown position type: ${p.type}`);
+        assertNever(p);
       }
     });
 
-    const strategy = new Strategy({
+    return new Strategy({
       name: data.name,
       positions,
-      minPrice: data.minPrice,
-      maxPrice: data.maxPrice,
+      spotPrice: data.spotPrice || 0,
       daysInPosition: data.daysInPosition,
       hiddenSeries: new Set(data.hiddenSeries || []),
     });
-
-    return strategy;
   }
 }

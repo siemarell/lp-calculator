@@ -10,8 +10,7 @@ import { useEffect, useRef, useState } from "react";
 interface SavedStrategy {
   name: string;
   positions: ReturnType<Strategy["positions"][number]["toJson"]>[];
-  minPrice: number;
-  maxPrice: number;
+  spotPrice: number;
   daysInPosition: number;
   savedAt: string;
   hiddenSeries: string[];
@@ -25,12 +24,15 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
   const [strategy, setStrategy] = useState(
     new Strategy({
       daysInPosition: 0,
-      maxPrice: 0,
-      minPrice: 0,
+      spotPrice: 1600,
       name: "New Strategy",
       positions: [],
     }),
   );
+  useEffect(() => {
+    return () => strategy.dispose();
+  }, [strategy]);
+
   return (
     <PageRoot className={cn("flex flex-col gap-6", props.className)}>
       <div className="flex flex-col gap-2">
@@ -114,14 +116,14 @@ const StrategySaveRestore = observer(
         />
         <button
           onClick={handleSave}
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 cursor-pointer"
+          className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
         >
           Save
         </button>
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600 cursor-pointer"
+            className="cursor-pointer rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
           >
             Restore
           </button>
@@ -142,7 +144,7 @@ const StrategySaveRestore = observer(
                         <td className="px-4 py-2">
                           <button
                             onClick={() => handleRestore(s)}
-                            className="text-blue-500 hover:text-blue-700 cursor-pointer"
+                            className="cursor-pointer text-blue-500 hover:text-blue-700"
                           >
                             {s.name}
                           </button>
@@ -153,7 +155,7 @@ const StrategySaveRestore = observer(
                         <td className="px-4 py-2 text-right">
                           <button
                             onClick={() => handleDelete(s.name)}
-                            className="text-red-500 hover:text-red-700 cursor-pointer"
+                            className="cursor-pointer text-red-500 hover:text-red-700"
                           >
                             Delete
                           </button>

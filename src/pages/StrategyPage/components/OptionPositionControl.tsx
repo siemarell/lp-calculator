@@ -65,9 +65,9 @@ export const OptionPositionControl = observer(
             }}
             size="small"
             sx={{ minWidth: 120 }}
-            value={props.option.purchaseSpotPrice}
+            value={props.option.spotPrice}
             onChange={(e) => {
-              props.option.purchaseSpotPrice = Number(e.target.value);
+              props.option.spotPrice = Number(e.target.value);
             }}
           />
           <Typography variant="body2" sx={{ minWidth: 100 }}>

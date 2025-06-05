@@ -54,7 +54,7 @@ export const FuturePositionControl = observer(
             />
             <button
               onClick={props.onRemove}
-              className="rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600 cursor-pointer"
+              className="cursor-pointer rounded bg-red-500 px-2 py-1 text-sm text-white hover:bg-red-600"
             >
               Remove
             </button>
@@ -70,7 +70,7 @@ export const FuturePositionControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.position.amount || ''}
+              value={props.position.amount || ""}
               onChange={(e) => {
                 props.position.amount = Number(e.target.value);
               }}
@@ -85,7 +85,7 @@ export const FuturePositionControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.position.entryPrice || ''}
+              value={props.position.entryPrice || ""}
               onChange={(e) => {
                 props.position.entryPrice = Number(e.target.value);
               }}
@@ -101,7 +101,7 @@ export const FuturePositionControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.position.margin || ''}
+              value={props.position.margin || ""}
               onChange={(e) => {
                 props.position.margin = Number(e.target.value);
               }}
