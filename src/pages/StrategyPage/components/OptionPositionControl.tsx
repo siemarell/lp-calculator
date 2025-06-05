@@ -51,6 +51,19 @@ export const OptionPositionControl = observer(
               <MenuItem value={PositionType.SELL}>{PositionType.SELL}</MenuItem>
             </Select>
           </FormControl>
+          <TextField
+            label="Spot Price"
+            type="number"
+            InputProps={{
+              inputProps: { step: 0.5 }
+            }}
+            size="small"
+            sx={{ minWidth: 120 }}
+            value={props.option.purchaseSpotPrice}
+            onChange={(e) => {
+              props.option.purchaseSpotPrice = Number(e.target.value);
+            }}
+          />
           <div className="flex-grow" />
           <div className="flex items-center gap-2">
             <Switch
