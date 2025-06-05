@@ -29,7 +29,7 @@ export const UniswapV3PositionControl = observer(
             }}
             size="small"
             sx={{ width: 150 }}
-            value={props.position.p_l}
+            value={props.position.p_l || ''}
             onChange={(e) => {
               props.position.p_l = Number(e.target.value);
             }}
@@ -42,7 +42,7 @@ export const UniswapV3PositionControl = observer(
             }}
             size="small"
             sx={{ width: 150 }}
-            value={props.position.p_u}
+            value={props.position.p_u || ''}
             onChange={(e) => {
               props.position.p_u = Number(e.target.value);
             }}
@@ -55,7 +55,7 @@ export const UniswapV3PositionControl = observer(
             }}
             size="small"
             sx={{ width: 150 }}
-            value={props.position.initialPriceInToken1}
+            value={props.position.initialPriceInToken1 || ''}
             onChange={(e) => {
               props.position.initialPriceInToken1 = Number(e.target.value);
             }}
@@ -88,7 +88,7 @@ export const UniswapV3PositionControl = observer(
                 }}
                 size="small"
                 sx={{ width: 150 }}
-                value={props.position.apr}
+                value={props.position.apr || ''}
                 onChange={(e) => {
                   props.position.apr = Number(e.target.value);
                 }}
@@ -101,7 +101,7 @@ export const UniswapV3PositionControl = observer(
                 }}
                 size="small"
                 sx={{ width: 150 }}
-                value={props.position.initialPositionValueInToken1}
+                value={props.position.initialPositionValueInToken1 || ''}
                 onChange={(e) => {
                   props.position.initialPositionValueInToken1 = Number(
                     e.target.value,
@@ -143,7 +143,7 @@ export const UniswapV3PositionControl = observer(
                   size="small"
                   sx={{ width: 150 }}
                   disabled={!props.position.isCustomTokenDistribution}
-                  value={props.position.t0Part}
+                  value={props.position.t0Part || ''}
                   onChange={(e) => {
                     props.position.setCustomTokenDistribution(
                       Number(e.target.value),

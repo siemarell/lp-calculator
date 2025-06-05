@@ -22,7 +22,7 @@ export const StrategySettingsControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.strategy.daysInPosition}
+              value={props.strategy.daysInPosition || ''}
               onChange={(e) => {
                 props.strategy.daysInPosition = Number(e.target.value);
               }}
@@ -37,7 +37,7 @@ export const StrategySettingsControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.strategy.minPrice}
+              value={props.strategy.minPrice || ''}
               onChange={(e) => {
                 props.strategy.minPrice = Number(e.target.value);
               }}
@@ -52,7 +52,7 @@ export const StrategySettingsControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.strategy.maxPrice}
+              value={props.strategy.maxPrice || ''}
               onChange={(e) => {
                 props.strategy.maxPrice = Number(e.target.value);
               }}

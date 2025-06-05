@@ -70,7 +70,7 @@ export const FuturePositionControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.position.amount}
+              value={props.position.amount || ''}
               onChange={(e) => {
                 props.position.amount = Number(e.target.value);
               }}
@@ -85,7 +85,7 @@ export const FuturePositionControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.position.entryPrice}
+              value={props.position.entryPrice || ''}
               onChange={(e) => {
                 props.position.entryPrice = Number(e.target.value);
               }}
@@ -101,7 +101,7 @@ export const FuturePositionControl = observer(
               }}
               size="small"
               fullWidth
-              value={props.position.margin}
+              value={props.position.margin || ''}
               onChange={(e) => {
                 props.position.margin = Number(e.target.value);
               }}
