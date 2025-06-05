@@ -171,8 +171,8 @@ export class OptionPosition {
   }
 
   // Improved payoff calculation
-  payoff(prices: number[], daysRemaining?: number): number[] {
-    const daysToExpiry = daysRemaining ?? this.expirationDays;
+  payoff(prices: number[], daysInPosition: number = 0): number[] {
+    const daysToExpiry = Math.max(this.expirationDays - daysInPosition, 0);
     const timeToExpiry = daysToExpiry / 365; // Convert to years
     const result: number[] = [];
 
