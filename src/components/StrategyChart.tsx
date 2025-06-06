@@ -555,17 +555,21 @@ class ConfigBuilder {
         assertNever(position);
       }
     }
-    if (this.strategy.includeFeesInTotal) {
-      for (let i = 0; i < total_payoff.length; i++) {
-        total_payoff[i] += total_fees;
-      }
-    }
+
     // Add total strategy line series
     series.push({
       name: "Total Strategy",
       y: total_payoff,
       color: "black",
       width: 3,
+    });
+
+    // Add zero line annotation
+    annotations.push({
+      type: "horizontalLine",
+      y: 0,
+      color: "red",
+      lineWidth: 1,
     });
 
     return { series, annotations, total_fees };
