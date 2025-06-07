@@ -73,26 +73,26 @@ export const StrategyChart3D = observer((props: StrategyChart3DProps) => {
                 gridcolor: "rgb(128, 128, 128)",
                 zerolinecolor: "rgb(128, 128, 128)",
                 // Ensure all x values are shown
-                range: [Math.min(...x), Math.max(...x)],
-                autorange: false,
+                // range: [Math.min(...x), Math.max(...x)],
+                autorange: true,
               },
               yaxis: {
                 title: "Days in Position",
                 gridcolor: "rgb(128, 128, 128)",
                 zerolinecolor: "rgb(128, 128, 128)",
                 // Ensure all y values are shown
-                range: [0, daysInPosition],
-                autorange: false,
+                // range: [0, daysInPosition],
+                autorange: true,
               },
               zaxis: {
                 autorange: true,
                 title: "Payoff",
                 tickformat: "$,.2f",
                 gridcolor: "rgb(128, 128, 128)",
-                zerolinecolor: "rgb(128, 128, 128)",
+                zerolinecolor: "rgb(re)",
               },
               camera: {
-                eye: { x: 1.5, y: 1.5, z: 1.5 },
+                eye: { x: 0.0, y: -1.7, z: 0.0 },
               },
             },
             margin: {
