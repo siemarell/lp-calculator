@@ -2,15 +2,19 @@ import { OptionPosition, OptionType, PositionType } from "./options";
 import { UniswapV3Position } from "./uniswap_v3";
 import { FuturePosition, FutureType } from "./futures";
 import { linSpace } from "../utils/linespace";
-import { autorun, computed, observable, reaction, runInAction } from "mobx";
+import { computed, observable, reaction } from "mobx";
 import { assertNever } from "src/utils/assertNever";
 import Disposable from "src/utils/Disposable";
 
-interface StrategyDTO {
+export interface StrategyDTO {
   name: string;
   positions: Array<UniswapV3Position | OptionPosition | FuturePosition>;
   spotPrice: number;
   daysInPosition: number;
+  priceRangePercent: number;
+  includeFeesInTotal: boolean;
+  show3dChart: boolean;
+  hiddenSeries: Set<string>;
 }
 export class Strategy extends Disposable {
   @observable accessor name: string;
@@ -21,6 +25,8 @@ export class Strategy extends Disposable {
   @observable accessor spotPrice: number;
   @observable accessor priceRangePercent: number = 70;
   @observable accessor includeFeesInTotal: boolean = false;
+  @observable accessor show3dChart: boolean = false;
+
   @computed get minPrice() {
     return this.spotPrice - this.spotPrice * (this.priceRangePercent / 100);
   }
@@ -36,6 +42,9 @@ export class Strategy extends Disposable {
     spotPrice,
     daysInPosition,
     hiddenSeries = new Set(),
+    priceRangePercent,
+    includeFeesInTotal,
+    show3dChart,
   }: StrategyDTO & { hiddenSeries?: Set<string> }) {
     super();
     this.name = name;
@@ -43,6 +52,9 @@ export class Strategy extends Disposable {
     this.spotPrice = spotPrice;
     this.daysInPosition = daysInPosition;
     this.hiddenSeries = hiddenSeries;
+    this.includeFeesInTotal = includeFeesInTotal;
+    this.priceRangePercent = priceRangePercent;
+    this.show3dChart = show3dChart;
 
     this.addDisposer(
       reaction(
@@ -71,7 +83,10 @@ export class Strategy extends Disposable {
 
   @computed
   get prices() {
-    return linSpace(this.minPrice, this.maxPrice, 100);
+    return [
+      ...linSpace(this.minPrice, this.maxPrice, 100),
+      this.spotPrice,
+    ].toSorted();
   }
 
   removePosition(positionId: string) {
@@ -121,6 +136,9 @@ export class Strategy extends Disposable {
       daysInPosition: this.daysInPosition,
       savedAt: new Date().toISOString(),
       hiddenSeries: Array.from(this.hiddenSeries),
+      priceRangePercent: this.priceRangePercent,
+      includeFeesInTotal: this.includeFeesInTotal,
+      show3dChart: this.show3dChart,
     };
   }
 
@@ -142,7 +160,10 @@ export class Strategy extends Disposable {
       positions,
       spotPrice: data.spotPrice || 0,
       daysInPosition: data.daysInPosition,
-      hiddenSeries: new Set(data.hiddenSeries || []),
+      hiddenSeries: new Set(data.hiddenSeries ?? []),
+      priceRangePercent: data.priceRangePercent ?? 35,
+      includeFeesInTotal: data.includeFeesInTotal ?? false,
+      show3dChart: data.show3dChart ?? true,
     });
   }
 }

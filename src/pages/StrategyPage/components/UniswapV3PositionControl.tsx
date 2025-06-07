@@ -26,7 +26,9 @@ export const UniswapV3PositionControl = observer(
         )}
       >
         <div className="flex items-center gap-4">
-          <Typography variant="h6">Uniswap v3</Typography>
+          <Typography className={"shrink-0"} variant="h6">
+            Uniswap v3
+          </Typography>
           <TextField
             label="Lower Price"
             type="number"
@@ -66,8 +68,21 @@ export const UniswapV3PositionControl = observer(
               props.position.initialPriceInToken1 = Number(e.target.value);
             }}
           />
-          <div className="flex-grow" />
-          <div className="flex items-center gap-2">
+          <TextField
+            label="APR %"
+            type="number"
+            InputProps={{
+              inputProps: { step: 1 },
+              endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            }}
+            size="small"
+            sx={{ width: 150 }}
+            value={props.position.apr || ""}
+            onChange={(e) => {
+              props.position.apr = Number(e.target.value);
+            }}
+          />
+          <div className="ml-auto flex items-center gap-2">
             <Switch
               checked={props.position.enabled}
               onChange={(e) => {
@@ -82,134 +97,110 @@ export const UniswapV3PositionControl = observer(
             </button>
           </div>
         </div>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
-            <div className="flex items-center gap-4">
-              <TextField
-                label="APR %"
-                type="number"
-                InputProps={{
-                  inputProps: { step: 1 },
-                  endAdornment: (
-                    <InputAdornment position="end">%</InputAdornment>
-                  ),
-                }}
-                size="small"
-                sx={{ width: 150 }}
-                value={props.position.apr || ""}
-                onChange={(e) => {
-                  props.position.apr = Number(e.target.value);
-                }}
-              />
-              <TextField
-                label="Position Value"
-                type="number"
-                InputProps={{
-                  inputProps: { step: 100 },
-                }}
-                size="small"
-                sx={{ width: 150 }}
-                value={props.position.initialPositionValueInToken1 || ""}
-                onChange={(e) => {
-                  props.position.initialPositionValueInToken1 = Number(
-                    e.target.value,
-                  );
-                }}
-              />
-              <div className="flex flex-col">
-                <Typography variant="body2">
-                  Token0: {props.position.initialTokenAmounts[0].toFixed(4)} (
-                  {(
-                    ((props.position.initialTokenAmounts[0] *
-                      props.position.initialPriceInToken1) /
-                      props.position.initialPositionValueInToken1) *
-                    100
-                  ).toFixed(2)}
-                  %)
-                </Typography>
-                <Typography variant="body2">
-                  Token1: {props.position.initialTokenAmounts[1].toFixed(4)} (
-                  {(
-                    (props.position.initialTokenAmounts[1] /
-                      props.position.initialPositionValueInToken1) *
-                    100
-                  ).toFixed(2)}
-                  %)
-                </Typography>
-              </div>
+        <div className={"flex gap-2"}>
+          <div className="flex items-center gap-4">
+            <TextField
+              label="Invested Total"
+              type="number"
+              InputProps={{
+                inputProps: { step: 100 },
+              }}
+              size="small"
+              sx={{ width: 150 }}
+              value={props.position.initialPositionValueInToken1 || ""}
+              onChange={(e) => {
+                props.position.initialPositionValueInToken1 = Number(
+                  e.target.value,
+                );
+              }}
+            />
+            <div className="flex flex-col">
+              <Typography variant="body2">
+                Token0: {props.position.initialTokenAmounts[0].toFixed(4)} (
+                {(
+                  ((props.position.initialTokenAmounts[0] *
+                    props.position.initialPriceInToken1) /
+                    props.position.initialPositionValueInToken1) *
+                  100
+                ).toFixed(2)}
+                %)
+              </Typography>
+              <Typography variant="body2">
+                Token1: {props.position.initialTokenAmounts[1].toFixed(4)} (
+                {(
+                  (props.position.initialTokenAmounts[1] /
+                    props.position.initialPositionValueInToken1) *
+                  100
+                ).toFixed(2)}
+                %)
+              </Typography>
             </div>
-          </Grid>
-        </Grid>
-        <Box mt={2}>
-          <Grid container gap={2}>
-            <Grid item xs={12}>
-              <div className="flex items-center gap-4">
-                <Typography variant="subtitle2">
-                  Custom Token Distribution
-                </Typography>
-                <Switch
-                  checked={props.position.isCustomTokenDistribution}
-                  onChange={(e) => {
-                    props.position.isCustomTokenDistribution = e.target.checked;
-                  }}
-                />
-                <TextField
-                  label="Token0 Part"
-                  type="number"
-                  InputProps={{
-                    inputProps: {
-                      step: 0.05,
-                      min: 0,
-                      max: 1,
-                    },
-                  }}
-                  size="small"
-                  sx={{ width: 150 }}
-                  disabled={!props.position.isCustomTokenDistribution}
-                  value={props.position.t0Part}
-                  onChange={(e) => {
-                    props.position.setCustomTokenDistribution(
-                      Number(e.target.value),
-                    );
-                  }}
-                />
-                <div className="flex flex-col">
-                  <Typography
-                    variant="body2"
-                    color={
-                      props.position.isCustomTokenDistribution
-                        ? "text.primary"
-                        : "text.disabled"
-                    }
-                  >
-                    Token0:{" "}
-                    {(
-                      (props.position.initialPositionValueInToken1 *
-                        props.position.t0Part) /
-                      props.position.initialPriceInToken1
-                    ).toFixed(4)}{" "}
-                    ({(props.position.t0Part * 100).toFixed(2)}%)
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color={
-                      props.position.isCustomTokenDistribution
-                        ? "text.primary"
-                        : "text.disabled"
-                    }
-                  >
-                    Token1:{" "}
-                    {(
-                      props.position.initialPositionValueInToken1 *
-                      (1 - props.position.t0Part)
-                    ).toFixed(4)}{" "}
-                    ({((1 - props.position.t0Part) * 100).toFixed(2)}%)
-                  </Typography>
-                </div>
-              </div>
-            </Grid>
-          </Grid>
-        </Box>
+          </div>
+          <div className="flex items-center gap-4">
+            <div>
+              <Typography variant="subtitle2">Custom</Typography>
+              <Switch
+                checked={props.position.isCustomTokenDistribution}
+                onChange={(e) => {
+                  props.position.isCustomTokenDistribution = e.target.checked;
+                }}
+              />
+            </div>
+            <TextField
+              label="Token0 Part"
+              type="number"
+              InputProps={{
+                inputProps: {
+                  step: 0.05,
+                  min: 0,
+                  max: 1,
+                },
+              }}
+              size="small"
+              sx={{ width: 150 }}
+              disabled={!props.position.isCustomTokenDistribution}
+              value={props.position.t0Part}
+              onChange={(e) => {
+                props.position.setCustomTokenDistribution(
+                  Number(e.target.value),
+                );
+              }}
+            />
+            <div className="flex flex-col">
+              <Typography
+                variant="body2"
+                color={
+                  props.position.isCustomTokenDistribution
+                    ? "text.primary"
+                    : "text.disabled"
+                }
+              >
+                Token0:{" "}
+                {(
+                  (props.position.initialPositionValueInToken1 *
+                    props.position.t0Part) /
+                  props.position.initialPriceInToken1
+                ).toFixed(4)}{" "}
+                ({(props.position.t0Part * 100).toFixed(2)}%)
+              </Typography>
+              <Typography
+                variant="body2"
+                color={
+                  props.position.isCustomTokenDistribution
+                    ? "text.primary"
+                    : "text.disabled"
+                }
+              >
+                Token1:{" "}
+                {(
+                  props.position.initialPositionValueInToken1 *
+                  (1 - props.position.t0Part)
+                ).toFixed(4)}{" "}
+                ({((1 - props.position.t0Part) * 100).toFixed(2)}%)
+              </Typography>
+            </div>
+          </div>
+        </div>
       </Block>
     );
   },

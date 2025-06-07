@@ -428,6 +428,16 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
           />
         </div>
       </div>
+      <div className="flex items-center gap-2">
+        <Typography variant="body2">Show 3dChart</Typography>
+        <Switch
+          size="small"
+          checked={props.strategy.show3dChart}
+          onChange={(e) => {
+            props.strategy.show3dChart = e.target.checked;
+          }}
+        />
+      </div>
     </div>
   );
 });
@@ -446,6 +456,15 @@ class ConfigBuilder {
     const series: SeriesData[] = [];
     const annotations: Annotation[] = [];
 
+    // Add current price vertical line annotation
+    annotations.push({
+      type: "verticalLine",
+      x: this.strategy.spotPrice,
+      color: "red",
+      lineWidth: 2,
+      dash: [5, 5],
+    });
+
     for (const position of this.strategy.positions) {
       // Skip disabled positions
       if (!position.enabled) continue;
@@ -459,15 +478,6 @@ class ConfigBuilder {
           fillColor: "rgba(0, 255, 0, 0.1)",
           borderColor: "rgba(0, 255, 0, 0.3)",
           borderWidth: 1,
-        });
-
-        // Add current price vertical line annotation
-        annotations.push({
-          type: "verticalLine",
-          x: position.initialPriceInToken1,
-          color: "red",
-          lineWidth: 2,
-          dash: [5, 5],
         });
 
         // Calculate impermanent loss

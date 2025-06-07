@@ -16,14 +16,14 @@ export const StrategySettingsControl = observer(
               label="Days In Position"
               type="number"
               InputProps={{
-                inputProps: { step: 1, min: 1 },
+                inputProps: { step: 1, min: 0 },
                 endAdornment: (
                   <InputAdornment position="end">days</InputAdornment>
                 ),
               }}
               size="small"
               fullWidth
-              value={props.strategy.daysInPosition || ""}
+              value={props.strategy.daysInPosition}
               onChange={(e) => {
                 props.strategy.daysInPosition = Number(e.target.value);
               }}

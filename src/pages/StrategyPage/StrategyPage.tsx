@@ -10,9 +10,12 @@ import { useEffect, useRef, useState } from "react";
 
 interface SavedStrategy {
   name: string;
-  positions: ReturnType<Strategy["positions"][number]["toJson"]>[];
   spotPrice: number;
   daysInPosition: number;
+  priceRangePercent: number;
+  includeFeesInTotal: boolean;
+  show3dChart: boolean;
+  positions: ReturnType<Strategy["positions"][number]["toJson"]>[];
   savedAt: string;
   hiddenSeries: string[];
 }
@@ -28,6 +31,10 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
       spotPrice: 1600,
       name: "New Strategy",
       positions: [],
+      priceRangePercent: 35,
+      includeFeesInTotal: false,
+      hiddenSeries: new Set(),
+      show3dChart: false,
     }),
   );
   useEffect(() => {
@@ -41,7 +48,7 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
         <StrategySaveRestore strategy={strategy} onRestore={setStrategy} />
       </div>
       <StrategyChart strategy={strategy} />
-      <StrategyChart3D strategy={strategy} />
+      {strategy.show3dChart && <StrategyChart3D strategy={strategy} />}
       <StrategyControls strategy={strategy} />
     </PageRoot>
   );

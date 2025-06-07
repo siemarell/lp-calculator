@@ -25,6 +25,8 @@ export class OptionPosition {
   @observable accessor premium_per_item: number;
   @observable accessor expirationDays: number;
   @observable accessor enabled: boolean = true;
+  @observable accessor autoRoll: boolean;
+  @observable accessor autoRollDays: number;
 
   // Additional parameters for better pricing
   @observable accessor spotPrice: number; // Spot price when position was created
@@ -38,6 +40,8 @@ export class OptionPosition {
     premium_per_item: number,
     purchaseSpotPrice: number,
     expirationDays: number,
+    autoRoll = false,
+    autoRollDays = 0,
   ) {
     this.id = `option-${id++}`;
     this.optionType = optionType;
@@ -47,6 +51,8 @@ export class OptionPosition {
     this.premium_per_item = premium_per_item;
     this.spotPrice = purchaseSpotPrice;
     this.expirationDays = expirationDays;
+    this.autoRoll = autoRoll;
+    this.autoRollDays = autoRollDays;
   }
   @computed get IV(): number {
     return this.calculateImpliedVolatility(
