@@ -27,6 +27,7 @@ export class Strategy extends Disposable {
   @computed get maxPrice() {
     return this.spotPrice + this.spotPrice * (this.priceRangePercent / 100);
   }
+
   @observable accessor hiddenSeries: Set<string> = new Set();
 
   constructor({

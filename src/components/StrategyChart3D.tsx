@@ -3,6 +3,7 @@ import { Strategy } from "../strategy/strategy";
 import cn from "classnames";
 import Plot from "react-plotly.js";
 import { Typography } from "@mui/material";
+import { UniswapV3Position } from "src/strategy/uniswap_v3";
 
 interface StrategyChart3DProps {
   className?: string;
@@ -16,6 +17,15 @@ export const StrategyChart3D = observer((props: StrategyChart3DProps) => {
   // Create a grid of points for the 3D surface
   const x = prices;
   const y = Array.from({ length: daysInPosition + 1 }, (_, i) => i);
+  let uniLeftEdge = 0;
+  let uniRightEdge = 0;
+  for (const position of props.strategy.positions) {
+    if (!position.enabled) continue;
+    if (position instanceof UniswapV3Position) {
+      uniLeftEdge = position.p_l;
+      uniRightEdge = position.p_u;
+    }
+  }
   const z = y.map((day) =>
     x.map((price) => {
       // Calculate payoff at each price point and day
@@ -59,6 +69,53 @@ export const StrategyChart3D = observer((props: StrategyChart3DProps) => {
                 "Days: %{y}<br>" +
                 "Payoff: $%{z:.2f}<extra></extra>",
             },
+            // Zero payoff plane
+            {
+              type: "surface" as const,
+              x: [Math.min(...x), Math.max(...x)],
+              y: [0, daysInPosition],
+              z: [
+                [0, 0],
+                [0, 0],
+              ],
+              opacity: 0.3,
+              showscale: false,
+              hoverongaps: false,
+              hovertemplate: "Zero Payoff Plane<extra></extra>",
+            },
+            // Left edge of Uniswap V3
+
+            {
+              type: "surface" as const,
+              x: [uniLeftEdge, uniLeftEdge],
+              y: [0, daysInPosition],
+              z: [
+                [Math.min(...z.flat()), Math.max(...z.flat())],
+                [Math.min(...z.flat()), Math.max(...z.flat())],
+              ],
+              opacity: 0.3,
+              visible: Boolean(uniLeftEdge),
+              showscale: false,
+              hoverongaps: false,
+              hovertemplate: "Uniswap V3 Left Edge<extra></extra>",
+            } as const,
+
+            // Right edge of Uniswap V3
+
+            {
+              type: "surface" as const,
+              x: [uniRightEdge, uniRightEdge],
+              y: [0, daysInPosition],
+              z: [
+                [Math.min(...z.flat()), Math.max(...z.flat())],
+                [Math.min(...z.flat()), Math.max(...z.flat())],
+              ],
+              visible: Boolean(uniRightEdge),
+              opacity: 0.3,
+              showscale: false,
+              hoverongaps: false,
+              hovertemplate: "Uniswap V3 Right Edge<extra></extra>",
+            } as const,
           ]}
           layout={{
             title: {
