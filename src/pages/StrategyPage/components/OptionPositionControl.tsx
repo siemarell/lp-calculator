@@ -90,7 +90,7 @@ export const OptionPositionControl = observer(
           </div>
         </div>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <TextField
               label="Premium"
               type="number"
@@ -105,7 +105,7 @@ export const OptionPositionControl = observer(
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <TextField
               label="Quantity"
               type="number"
@@ -120,7 +120,7 @@ export const OptionPositionControl = observer(
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <TextField
               label="Strike"
               type="number"
@@ -135,7 +135,7 @@ export const OptionPositionControl = observer(
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={3}>
+          <Grid item xs={12} sm={2}>
             <TextField
               label="Expiration (days)"
               type="number"
@@ -153,6 +153,38 @@ export const OptionPositionControl = observer(
                   1,
                   Number(e.target.value),
                 );
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={2} className={"flex"}>
+            <div className={"flex-1"}></div>
+            <div className={"ml-auto w-full flex-1 flex-col items-end gap-2"}>
+              <Typography variant="body2">AutoRoll</Typography>
+              <Switch
+                size="small"
+                checked={props.option.autoRoll}
+                onChange={(e) => {
+                  props.option.autoRoll = e.target.checked;
+                }}
+              />
+            </div>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <TextField
+              label="Auto roll days"
+              type="number"
+              disabled={!props.option.autoRoll}
+              InputProps={{
+                inputProps: {
+                  step: 1,
+                  min: 1,
+                },
+              }}
+              size="small"
+              fullWidth
+              value={props.option.autoRollDays}
+              onChange={(e) => {
+                props.option.autoRollDays = Number(e.target.value);
               }}
             />
           </Grid>

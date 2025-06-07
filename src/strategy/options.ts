@@ -224,6 +224,18 @@ export class OptionPosition {
 
   // Improved payoff calculation with proper reference point
   payoff(prices: number[], daysInPosition: number = 0): number[] {
+    if (this.autoRoll && this.autoRollDays > 0) {
+      const amountOfRolls = Math.floor(daysInPosition / this.autoRollDays);
+      if (amountOfRolls > 0) {
+        const dayInPositionAfterRoll = daysInPosition % this.autoRollDays;
+        return prices.map(
+          (price) =>
+            this.calculatePnL(this.spotPrice, this.autoRollDays) *
+              amountOfRolls +
+            this.calculatePnL(price, dayInPositionAfterRoll),
+        );
+      }
+    }
     return prices.map((price) => this.calculatePnL(price, daysInPosition));
   }
 
