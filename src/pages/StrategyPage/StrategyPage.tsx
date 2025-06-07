@@ -1,5 +1,6 @@
 import cn from "classnames";
 import { StrategyChart } from "src/components/StrategyChart";
+import { StrategyChart3D } from "src/components/StrategyChart3D";
 import { Strategy } from "src/strategy/strategy";
 import { PageRoot } from "src/components/PageRoot";
 import { observer } from "mobx-react-lite";
@@ -40,6 +41,7 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
         <StrategySaveRestore strategy={strategy} onRestore={setStrategy} />
       </div>
       <StrategyChart strategy={strategy} />
+      <StrategyChart3D strategy={strategy} />
       <StrategyControls strategy={strategy} />
     </PageRoot>
   );

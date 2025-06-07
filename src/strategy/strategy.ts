@@ -12,7 +12,6 @@ interface StrategyDTO {
   spotPrice: number;
   daysInPosition: number;
 }
-
 export class Strategy extends Disposable {
   @observable accessor name: string;
   @observable accessor positions: Array<

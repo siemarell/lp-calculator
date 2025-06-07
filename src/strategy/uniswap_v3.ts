@@ -177,6 +177,11 @@ export class UniswapV3Position {
     return result;
   }
 
+  payoff(prices: number[], days: number) {
+    return this.impermanent_loss(prices).map(
+      (v) => v + this.getFeesInToken1(days),
+    );
+  }
   private _provide_both(p_current: number, amount0: number, amount1: number) {
     /**
      * Provide both token0 and token1 and compute liquidity.
