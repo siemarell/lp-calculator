@@ -11,7 +11,6 @@ export default class Disposable {
   }
 
   dispose = () => {
-    console.log("Disposing");
     for (const disposer of this.disposers) {
       disposer();
     }

@@ -86,7 +86,7 @@ export class Strategy extends Disposable {
     return [
       ...linSpace(this.minPrice, this.maxPrice, 100),
       this.spotPrice,
-    ].toSorted();
+    ].toSorted((a, b) => a - b);
   }
 
   removePosition(positionId: string) {
