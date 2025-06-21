@@ -122,17 +122,27 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/strategies")}
-            className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600"
+            className="flex cursor-pointer items-center gap-2 rounded-md bg-gray-500 px-2 text-white hover:bg-gray-600"
           >
-            Back to Strategies
+            {"<- Back"}
           </button>
           <H1>Strategy calculator</H1>
         </div>
-        <StrategySaveRestore
-          strategy={strategy}
-          onRestore={setStrategy}
-          onSave={handleSave}
-        />
+        <div className={"flex justify-between gap-6"}>
+          <input
+            type="text"
+            value={strategy.name}
+            onChange={(e) => (strategy.name = e.target.value)}
+            placeholder="Strategy name"
+            className="flex-1 rounded border px-4 py-2"
+          />
+          <button
+            onClick={handleSave}
+            className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            Save
+          </button>
+        </div>
       </div>
       <StrategyChart strategy={strategy} />
       {strategy.show3dChart && <StrategyChart3D strategy={strategy} />}
@@ -140,116 +150,3 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
     </PageRoot>
   );
 });
-
-const StrategySaveRestore = observer(
-  (props: {
-    strategy: Strategy;
-    onRestore: (s: Strategy) => void;
-    onSave: () => void;
-  }) => {
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [savedStrategies, setSavedStrategies] = useState<SavedStrategy[]>([]);
-    const dropdownRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-      const loadStrategies = () => {
-        const strategies = localStorageUtils.loadStrategies();
-        setSavedStrategies(strategies);
-      };
-      loadStrategies();
-    }, []);
-
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (
-          dropdownRef.current &&
-          !dropdownRef.current.contains(event.target as Node)
-        ) {
-          setIsDropdownOpen(false);
-        }
-      };
-
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const handleRestore = (strategyData: SavedStrategy) => {
-      const restoredStrategy = Strategy.fromJson(strategyData.data);
-      props.onRestore(restoredStrategy);
-      setIsDropdownOpen(false);
-    };
-
-    const handleDelete = (strategyId: string) => {
-      localStorageUtils.deleteStrategy(strategyId);
-      const updated = savedStrategies.filter((s) => s.id !== strategyId);
-      setSavedStrategies(updated);
-    };
-
-    return (
-      <div className="flex items-center gap-2">
-        <input
-          type="text"
-          value={props.strategy.name}
-          onChange={(e) => (props.strategy.name = e.target.value)}
-          placeholder="Strategy name"
-          className="flex-1 rounded border px-4 py-2"
-        />
-        <button
-          onClick={props.onSave}
-          className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-        >
-          Save
-        </button>
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="cursor-pointer rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
-          >
-            Load Strategy
-          </button>
-          {isDropdownOpen && (
-            <div className="absolute top-full right-0 z-10 mt-1 w-96 rounded border bg-white shadow-lg">
-              <div className="max-h-96 overflow-y-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left">Name</th>
-                      <th className="px-4 py-2 text-left">Last Modified</th>
-                      <th className="px-4 py-2 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {savedStrategies.map((s) => (
-                      <tr key={s.id} className="border-t hover:bg-gray-50">
-                        <td className="px-4 py-2">
-                          <button
-                            onClick={() => handleRestore(s)}
-                            className="cursor-pointer text-blue-500 hover:text-blue-700"
-                          >
-                            {s.name}
-                          </button>
-                        </td>
-                        <td className="px-4 py-2 text-gray-600">
-                          {new Date(s.lastModified).toLocaleString()}
-                        </td>
-                        <td className="px-4 py-2 text-right">
-                          <button
-                            onClick={() => handleDelete(s.id)}
-                            className="cursor-pointer text-red-500 hover:text-red-700"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  },
-);

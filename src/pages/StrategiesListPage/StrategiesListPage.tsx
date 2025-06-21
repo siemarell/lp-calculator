@@ -60,14 +60,21 @@ export const StrategiesListPage = observer(() => {
       date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     );
   };
-
+  const header = (
+    <div className="flex items-center justify-between">
+      <H1>My Strategies</H1>
+      <button
+        className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+        onClick={handleNewStrategy}
+      >
+        New Strategy
+      </button>
+    </div>
+  );
   if (loading) {
     return (
       <PageRoot className="flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <H1>My Strategies</H1>
-          <button onClick={handleNewStrategy}>New Strategy</button>
-        </div>
+        {header}
         <div className="flex items-center justify-center py-12">
           <div className="text-gray-500">Loading strategies...</div>
         </div>
@@ -77,10 +84,7 @@ export const StrategiesListPage = observer(() => {
 
   return (
     <PageRoot className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <H1>My Strategies</H1>
-        <button onClick={handleNewStrategy}>New Strategy</button>
-      </div>
+      {header}
 
       <div className="overflow-hidden rounded-lg bg-white shadow">
         <ul className="divide-y divide-gray-200">
