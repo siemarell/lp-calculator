@@ -52,6 +52,18 @@ export const StrategiesListPage = observer(() => {
     }
   };
 
+  const handleDuplicateStrategy = (
+    e: React.MouseEvent,
+    id: string,
+  ) => {
+    e.stopPropagation();
+    const newId = localStorageUtils.duplicateStrategy(id);
+    if (newId) {
+      loadStrategies(); // Reload the list to show the duplicated strategy
+      navigate(`/strategy/${newId}`); // Navigate to the duplicated strategy
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return (
@@ -106,15 +118,24 @@ export const StrategiesListPage = observer(() => {
                         modified {formatDate(strategy.lastModified)}
                       </div>
                     </button>
-                    <button
-                      onClick={(e) =>
-                        handleDeleteStrategy(e, strategy.id, strategy.name)
-                      }
-                      className="ml-4 rounded-full p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
-                      title="Delete strategy"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => handleDuplicateStrategy(e, strategy.id)}
+                        className="rounded px-3 py-1 text-sm text-blue-600 transition-colors hover:bg-blue-50"
+                        title="Duplicate strategy"
+                      >
+                        Duplicate
+                      </button>
+                      <button
+                        onClick={(e) =>
+                          handleDeleteStrategy(e, strategy.id, strategy.name)
+                        }
+                        className="rounded px-3 py-1 text-sm text-red-600 transition-colors hover:bg-red-50"
+                        title="Delete strategy"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </li>

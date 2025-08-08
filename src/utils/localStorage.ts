@@ -84,4 +84,27 @@ export const localStorageUtils = {
       console.error('Failed to update strategy in localStorage:', error);
     }
   },
+
+  duplicateStrategy: (id: string): string | null => {
+    try {
+      const strategies = localStorageUtils.loadStrategies();
+      const strategyToDuplicate = strategies.find(s => s.id === id);
+      if (!strategyToDuplicate) return null;
+      
+      const newId = crypto.randomUUID();
+      const duplicatedStrategy: SavedStrategy = {
+        ...strategyToDuplicate,
+        id: newId,
+        name: `${strategyToDuplicate.name} (Copy)`,
+        lastModified: new Date().toISOString(),
+      };
+      
+      strategies.push(duplicatedStrategy);
+      localStorage.setItem(STRATEGIES_STORAGE_KEY, JSON.stringify(strategies));
+      return newId;
+    } catch (error) {
+      console.error('Failed to duplicate strategy:', error);
+      return null;
+    }
+  },
 }; 
