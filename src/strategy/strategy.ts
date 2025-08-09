@@ -128,7 +128,8 @@ export class Strategy extends Disposable {
     this.positions = [...this.positions, newPosition];
   }
 
-  toJson() {
+  @computed
+  get serialized() {
     return {
       name: this.name,
       positions: this.positions.map((p) => p.toJson()),
@@ -140,6 +141,10 @@ export class Strategy extends Disposable {
       includeFeesInTotal: this.includeFeesInTotal,
       show3dChart: this.show3dChart,
     };
+  }
+
+  toJson() {
+    return this.serialized;
   }
 
   static fromJson(data: ReturnType<Strategy["toJson"]>): Strategy {

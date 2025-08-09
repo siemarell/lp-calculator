@@ -9,6 +9,7 @@ import { StrategyControls } from "./components/StrategyControls";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { localStorageUtils, SavedStrategy } from "src/utils/localStorage";
+import { reaction } from "mobx";
 
 interface StrategyPageProps {
   className?: string;
@@ -19,6 +20,8 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
   const navigate = useNavigate();
   const [strategy, setStrategy] = useState<Strategy | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (id === "new") {
@@ -64,12 +67,32 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
   }, [id, navigate]);
 
   useEffect(() => {
+    if (!strategy || !id || id === "new") return;
+
+    // Set up autosave reaction
+    const disposer = reaction(
+      () => strategy.serialized,
+      () => {
+        // Autosave to localStorage
+        setIsSaving(true);
+        localStorageUtils.updateStrategy(id, strategy);
+        setLastSaved(new Date());
+        setTimeout(() => setIsSaving(false), 200);
+        console.log("Strategy autosaved");
+      },
+      {
+        delay: 500, // Debounce for 500ms to avoid too frequent saves
+        equals: (a, b) => JSON.stringify(a) === JSON.stringify(b), // Deep equality check
+      }
+    );
+
     return () => {
+      disposer();
       if (strategy) {
         strategy.dispose();
       }
     };
-  }, [strategy]);
+  }, [strategy, id]);
 
   const handleSave = () => {
     if (!strategy) return;
@@ -136,12 +159,27 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
             placeholder="Strategy name"
             className="flex-1 rounded border px-4 py-2"
           />
-          <button
-            onClick={handleSave}
-            className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-          >
-            Save
-          </button>
+          <div className="flex items-center gap-2">
+            {id && id !== "new" && (
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                {isSaving ? (
+                  <span className="text-blue-500">Saving...</span>
+                ) : lastSaved ? (
+                  <span className="text-green-600">
+                    Autosaved at {lastSaved.toLocaleTimeString()}
+                  </span>
+                ) : (
+                  <span>Autosave enabled</span>
+                )}
+              </div>
+            )}
+            <button
+              onClick={handleSave}
+              className="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
       <StrategyChart strategy={strategy} />
