@@ -59,8 +59,10 @@ export const StrategyChart3D = observer((props: StrategyChart3DProps) => {
               // Disable automatic downsampling
               visible: true,
               colorbar: {
-                title: "Payoff",
-                titleside: "right",
+                title: {
+                  text: "Payoff",
+                },
+
                 tickformat: "$,.2f",
               },
               hoverongaps: false,

@@ -1,6 +1,7 @@
 import cn from "classnames";
 import { observer } from "mobx-react-lite";
 import { UniswapV3Position } from "src/strategy/uniswap_v3";
+import { Strategy } from "src/strategy/strategy";
 import { Block } from "src/components/Block";
 import {
   TextField,
@@ -9,6 +10,7 @@ import {
   Grid,
   Switch,
   Box,
+  Chip,
 } from "@mui/material";
 
 export const UniswapV3PositionControl = observer(
@@ -17,6 +19,10 @@ export const UniswapV3PositionControl = observer(
     className?: string;
     onRemove: () => void;
   }) => {
+    const fromPriceDiff =
+      (props.position.p_l / props.position.initialPriceInToken1 - 1) * 100;
+    const toPriceDiff =
+      (props.position.p_u / props.position.initialPriceInToken1 - 1) * 100;
     return (
       <Block
         className={cn(
@@ -29,6 +35,20 @@ export const UniswapV3PositionControl = observer(
           <Typography className={"shrink-0"} variant="h6">
             Uniswap v3
           </Typography>
+          <div className="flex gap-2">
+            <Chip
+              label={`From: ${fromPriceDiff >= 0 ? "+" : ""}${fromPriceDiff.toFixed(1)}%`}
+              size="small"
+              color={fromPriceDiff >= 0 ? "success" : "error"}
+              variant="outlined"
+            />
+            <Chip
+              label={`To: ${toPriceDiff >= 0 ? "+" : ""}${toPriceDiff.toFixed(1)}%`}
+              size="small"
+              color={toPriceDiff >= 0 ? "success" : "error"}
+              variant="outlined"
+            />
+          </div>
           <TextField
             label="Lower Price"
             type="number"
