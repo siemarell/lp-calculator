@@ -89,6 +89,8 @@ interface ChartDataResult {
   series: SeriesData[];
   annotations: Annotation[];
   total_fees: number;
+  current_theta: number;
+  cumulative_theta: number;
 }
 
 Chart.register(
@@ -235,7 +237,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const configBuilder = new ConfigBuilder(props.strategy);
-  const { series, annotations, total_fees } = configBuilder.getChartData();
+  const { series, annotations, total_fees, current_theta, cumulative_theta } = configBuilder.getChartData();
   const name = props.strategy.name;
   const prices = props.strategy.prices;
   const decimalPlaces = getDecimalPlaces(
@@ -410,33 +412,47 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   }, [name, prices, series, annotations]);
 
   return (
-    <div className={cn("relative h-[400px]", props.className)}>
-      <canvas ref={chartRef} className="h-full" />
-
-      <div className="absolute bottom-[-10px] left-0 flex items-center gap-4 py-2">
-        <Typography variant="h6">
-          Potential Fees: {total_fees.toFixed(2)}
-        </Typography>
+    <div className={cn("flex flex-col", props.className)}>
+      <div className="relative h-[400px]">
+        <canvas ref={chartRef} className="h-full" />
+      </div>
+      
+      <div className="flex flex-col gap-2 mt-4">
+        <div className="flex items-center gap-6">
+          <Typography variant="body1">
+            Potential Fees: ${total_fees.toFixed(2)}
+          </Typography>
+          <div className="flex items-center gap-2">
+            <Typography variant="body2">Include in total</Typography>
+            <Switch
+              size="small"
+              checked={props.strategy.includeFeesInTotal}
+              onChange={(e) => {
+                props.strategy.includeFeesInTotal = e.target.checked;
+              }}
+            />
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-6">
+          <Typography variant="body1">
+            Current Theta: ${current_theta.toFixed(2)}/day
+          </Typography>
+          <Typography variant="body1">
+            Cumulative Theta Decay: ${cumulative_theta.toFixed(2)}
+          </Typography>
+        </div>
+        
         <div className="flex items-center gap-2">
-          <Typography variant="body2">Include in total</Typography>
+          <Typography variant="body2">Show 3D Chart</Typography>
           <Switch
             size="small"
-            checked={props.strategy.includeFeesInTotal}
+            checked={props.strategy.show3dChart}
             onChange={(e) => {
-              props.strategy.includeFeesInTotal = e.target.checked;
+              props.strategy.show3dChart = e.target.checked;
             }}
           />
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <Typography variant="body2">Show 3dChart</Typography>
-        <Switch
-          size="small"
-          checked={props.strategy.show3dChart}
-          onChange={(e) => {
-            props.strategy.show3dChart = e.target.checked;
-          }}
-        />
       </div>
     </div>
   );
@@ -451,6 +467,8 @@ class ConfigBuilder {
     // Initialize total payoff array with zeros
     const total_payoff = new Array(prices.length).fill(0);
     let total_fees = 0;
+    let current_theta = 0;
+    let cumulative_theta = 0;
 
     // Data for the plot
     const series: SeriesData[] = [];
@@ -582,6 +600,28 @@ class ConfigBuilder {
       lineWidth: 1,
     });
 
-    return { series, annotations, total_fees };
+    // Calculate current theta and cumulative theta from all option positions
+    for (const position of this.strategy.positions) {
+      if (!position.enabled) continue;
+      if (position instanceof OptionPosition) {
+        // Get current theta
+        const currentGreeks = position.getGreeks(
+          this.strategy.spotPrice,
+          this.strategy.daysInPosition,
+        );
+        current_theta += currentGreeks.theta;
+        
+        // Calculate cumulative theta (sum from day 0 to selected day)
+        for (let day = 0; day <= this.strategy.daysInPosition; day++) {
+          const dailyGreeks = position.getGreeks(
+            this.strategy.spotPrice,
+            day,
+          );
+          cumulative_theta += dailyGreeks.theta;
+        }
+      }
+    }
+
+    return { series, annotations, total_fees, current_theta, cumulative_theta };
   }
 }
