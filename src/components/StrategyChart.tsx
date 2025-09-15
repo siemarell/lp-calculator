@@ -237,7 +237,8 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
   const configBuilder = new ConfigBuilder(props.strategy);
-  const { series, annotations, total_fees, current_theta, cumulative_theta } = configBuilder.getChartData();
+  const { series, annotations, total_fees, current_theta, cumulative_theta } =
+    configBuilder.getChartData();
   const name = props.strategy.name;
   const prices = props.strategy.prices;
   const decimalPlaces = getDecimalPlaces(
@@ -416,8 +417,8 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
       <div className="relative h-[400px]">
         <canvas ref={chartRef} className="h-full" />
       </div>
-      
-      <div className="flex flex-col gap-2 mt-4">
+
+      <div className="mt-4 flex flex-col gap-2">
         <div className="flex items-center gap-6">
           <Typography variant="body1">
             Potential Fees: ${total_fees.toFixed(2)}
@@ -433,7 +434,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
             />
           </div>
         </div>
-        
+
         <div className="flex items-center gap-6">
           <Typography variant="body1">
             Current Theta: ${current_theta.toFixed(2)}/day
@@ -442,7 +443,7 @@ export const StrategyChart = observer((props: StrategyChartProps) => {
             Cumulative Theta Decay: ${cumulative_theta.toFixed(2)}
           </Typography>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Typography variant="body2">Show 3D Chart</Typography>
           <Switch
@@ -610,13 +611,10 @@ class ConfigBuilder {
           this.strategy.daysInPosition,
         );
         current_theta += currentGreeks.theta;
-        
+
         // Calculate cumulative theta (sum from day 0 to selected day)
         for (let day = 0; day <= this.strategy.daysInPosition; day++) {
-          const dailyGreeks = position.getGreeks(
-            this.strategy.spotPrice,
-            day,
-          );
+          const dailyGreeks = position.getGreeks(this.strategy.spotPrice, day);
           cumulative_theta += dailyGreeks.theta;
         }
       }
