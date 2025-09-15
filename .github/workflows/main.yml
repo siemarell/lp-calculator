@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master   # or "main"
+      - master   # or "main" depending on your repo
 
 permissions:
   contents: read
@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
@@ -28,10 +28,10 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Upload build artifacts
+      - name: Upload production-ready build
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ./build   # or ./dist depending on your build output folder
+          path: ./build   # change to ./dist if your bundler outputs there
 
   deploy:
     environment:
