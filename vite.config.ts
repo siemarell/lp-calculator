@@ -27,6 +27,7 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: "dist",
   },
+  base: command === "serve" ? "/" : "/lp-calculator/",
   esbuild: {
     target: command === "build" ? ["es2020"] : ["es2020"],
   },
