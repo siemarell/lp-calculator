@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { localStorageUtils, SavedStrategy } from "src/utils/localStorage";
 import { reaction } from "mobx";
+import { ROUTES } from "src/utils/routes";
 
 interface StrategyPageProps {
   className?: string;
@@ -45,7 +46,7 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
         setStrategy(loadedStrategy);
       } else {
         // Strategy not found, redirect to strategies list
-        navigate("/strategies");
+        navigate(ROUTES.STRATEGIES_LIST);
         return;
       }
       setLoading(false);
@@ -83,7 +84,7 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
       {
         delay: 500, // Debounce for 500ms to avoid too frequent saves
         equals: (a, b) => JSON.stringify(a) === JSON.stringify(b), // Deep equality check
-      }
+      },
     );
 
     return () => {
@@ -144,7 +145,7 @@ export const StrategyPage = observer((props: StrategyPageProps) => {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/strategies")}
+            onClick={() => navigate(ROUTES.STRATEGIES_LIST)}
             className="flex cursor-pointer items-center gap-2 rounded-md bg-gray-500 px-2 text-white hover:bg-gray-600"
           >
             {"<- Back"}

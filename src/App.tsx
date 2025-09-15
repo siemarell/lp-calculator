@@ -1,25 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { StrategyPage } from "src/pages/StrategyPage/StrategyPage";
 import { StrategiesListPage } from "src/pages/StrategiesListPage/StrategiesListPage";
+import { ROUTES } from "src/utils/routes";
 
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/lp-calculator/" element={<StrategiesListPage />} />
-          <Route
-            path="/lp-calculator/strategies"
-            element={<StrategiesListPage />}
-          />
-          <Route
-            path="/lp-calculator/strategy/new"
-            element={<StrategyPage />}
-          />
-          <Route
-            path="/lp-calculator/strategy/:id"
-            element={<StrategyPage />}
-          />
+          <Route path={ROUTES.ROOT} element={<StrategiesListPage />} />
+          <Route path={ROUTES.ROOT} element={<StrategiesListPage />} />
+          <Route path={ROUTES.STRATEGIES_NEW} element={<StrategyPage />} />
+          <Route path={ROUTES.STRATEGIES_PAGE} element={<StrategyPage />} />
         </Routes>
       </div>
     </Router>
