@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { PageRoot } from "src/components/PageRoot";
 import { H1 } from "src/components/H1";
 import { localStorageUtils, SavedStrategy } from "src/utils/localStorage";
+import { ROUTES } from "src/utils/routes";
 
 export const StrategiesListPage = observer(() => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export const StrategiesListPage = observer(() => {
   };
 
   const handleNewStrategy = () => {
-    navigate("/strategy/new");
+    navigate(ROUTES.STRATEGIES_NEW);
   };
 
   const handleStrategyClick = (id: string) => {
@@ -52,10 +53,7 @@ export const StrategiesListPage = observer(() => {
     }
   };
 
-  const handleDuplicateStrategy = (
-    e: React.MouseEvent,
-    id: string,
-  ) => {
+  const handleDuplicateStrategy = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     const newId = localStorageUtils.duplicateStrategy(id);
     if (newId) {
